@@ -11,38 +11,35 @@ module.exports = Component "ButtonView",
 
   propTypes:
     button: Button.Kind
-    style: Style
-    iconStyle: Style
-    textStyle: Style
 
   customValues:
 
     button: get: ->
       @props.button
 
-  render: ->
+  initValues: ->
 
-    gestures = Gesture.Combinator [
+    gestures: Gesture.ResponderList [
       @button.tap
       @button.hold
     ]
 
+  initListeners: ->
+    @button.__attachListeners()
+
+  render: ->
+
     if @button.icon?
       icon = ImageView
-        style: @props.iconStyle
         source: @button.icon
+        style: @button.iconStyle
 
     if @button.text?
       text = ReactiveTextView
-        style: @props.textStyle
-        getText: => @button.text.value
+        getText: @button.text.getValue
+        style: @button.textStyle
 
     return View
-      style: [ @styles.button, @props.style ]
+      style: @button.style
       children: [ icon, text ]
-      mixins: [ gestures.touchHandlers ]
-
-  styles:
-
-    button:
-      flexDirection: "row"
+      mixins: [ @gestures.touchHandlers ]

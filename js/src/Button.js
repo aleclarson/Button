@@ -1,6 +1,8 @@
-var Factory, Holdable, Shape, Tappable;
+var Factory, Holdable, NativeValue, Tappable, define, mergeDefaults, sync;
 
-Shape = require("type-utils").Shape;
+NativeValue = require("component").NativeValue;
+
+mergeDefaults = require("mergeDefaults");
 
 Holdable = require("holdable");
 
@@ -8,13 +10,20 @@ Tappable = require("tappable");
 
 Factory = require("factory");
 
+define = require("define");
+
+sync = require("sync");
+
 module.exports = Factory("Button", {
   optionTypes: {
-    icon: [Number, Void],
-    text: [String, Void],
-    getText: [Function, Void],
-    maxTapCount: [Number, Void],
-    minHoldTime: [Number, Void]
+    icon: Number.Maybe,
+    text: String.Maybe,
+    getText: Function.Maybe,
+    maxTapCount: Number.Maybe,
+    minHoldTime: Number.Maybe,
+    style: Object.Maybe,
+    iconStyle: Object.Maybe,
+    textStyle: Object.Maybe
   },
   optionDefaults: {
     maxTapCount: 1
@@ -23,7 +32,7 @@ module.exports = Factory("Button", {
     render: {
       lazy: function() {
         var render;
-        render = this._getComponent();
+        render = this.__loadComponent();
         return (function(_this) {
           return function(props) {
             if (props == null) {
@@ -36,8 +45,20 @@ module.exports = Factory("Button", {
       }
     }
   },
+  initValues: function(options) {
+    return {
+      icon: options.icon,
+      text: null,
+      style: options.style != null ? options.style : options.style = {},
+      iconStyle: options.iconStyle != null ? options.iconStyle : options.iconStyle = {},
+      textStyle: options.textStyle != null ? options.textStyle : options.textStyle = {}
+    };
+  },
   init: function(options) {
-    this.icon = options.icon;
+    mergeDefaults(this.style, {
+      flexDirection: "row",
+      alignItems: "center"
+    });
     if (options.text != null) {
       this.text = NativeValue(options.text);
     } else if (options.getText != null) {
@@ -46,17 +67,26 @@ module.exports = Factory("Button", {
     this.tap = Tappable({
       maxTapCount: options.maxTapCount
     });
-    this.tap.mixin(this);
+    define(this, "didTap", {
+      get: function() {
+        return this.tap.didTap.listenable;
+      }
+    });
     if (options.minHoldTime != null) {
       this.hold = Holdable({
         minHoldTime: options.minHoldTime
       });
-      return this.hold.mixin(this);
+      return define(this, "didHold", {
+        get: function() {
+          return this.hold.didHold.listenable;
+        }
+      });
     }
   },
-  _getComponent: function() {
+  __loadComponent: function() {
     return require("./ButtonView");
-  }
+  },
+  __attachListeners: emptyFunction
 });
 
 //# sourceMappingURL=../../map/src/Button.map

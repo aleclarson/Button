@@ -12,10 +12,7 @@ Button = require("./Button");
 
 module.exports = Component("ButtonView", {
   propTypes: {
-    button: Button.Kind,
-    style: Style,
-    iconStyle: Style,
-    textStyle: Style
+    button: Button.Kind
   },
   customValues: {
     button: {
@@ -24,35 +21,33 @@ module.exports = Component("ButtonView", {
       }
     }
   },
+  initValues: function() {
+    return {
+      gestures: Gesture.ResponderList([this.button.tap, this.button.hold])
+    };
+  },
+  initListeners: function() {
+    return this.button.__attachListeners();
+  },
   render: function() {
-    var gestures, icon, text;
-    gestures = Gesture.Combinator([this.button.tap, this.button.hold]);
+    var icon, text;
     if (this.button.icon != null) {
       icon = ImageView({
-        style: this.props.iconStyle,
-        source: this.button.icon
+        source: this.button.icon,
+        style: this.button.iconStyle
       });
     }
     if (this.button.text != null) {
       text = ReactiveTextView({
-        style: this.props.textStyle,
-        getText: (function(_this) {
-          return function() {
-            return _this.button.text.value;
-          };
-        })(this)
+        getText: this.button.text.getValue,
+        style: this.button.textStyle
       });
     }
     return View({
-      style: [this.styles.button, this.props.style],
+      style: this.button.style,
       children: [icon, text],
-      mixins: [gestures.touchHandlers]
+      mixins: [this.gestures.touchHandlers]
     });
-  },
-  styles: {
-    button: {
-      flexDirection: "row"
-    }
   }
 });
 

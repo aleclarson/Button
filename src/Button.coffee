@@ -1,18 +1,24 @@
 
-{ Shape } = require "type-utils"
+{ NativeValue } = require "component"
 
+mergeDefaults = require "mergeDefaults"
 Holdable = require "holdable"
 Tappable = require "tappable"
 Factory = require "factory"
+define = require "define"
+sync = require "sync"
 
 module.exports = Factory "Button",
 
   optionTypes:
-    icon: [ Number, Void ]
-    text: [ String, Void ]
-    getText: [ Function, Void ]
-    maxTapCount: [ Number, Void ]
-    minHoldTime: [ Number, Void ]
+    icon: Number.Maybe
+    text: String.Maybe
+    getText: Function.Maybe
+    maxTapCount: Number.Maybe
+    minHoldTime: Number.Maybe
+    style: Object.Maybe
+    iconStyle: Object.Maybe
+    textStyle: Object.Maybe
 
   optionDefaults:
     maxTapCount: 1
@@ -20,14 +26,28 @@ module.exports = Factory "Button",
   customValues:
 
     render: lazy: ->
-      render = @_getComponent()
+      render = @__loadComponent()
       return (props = {}) =>
-        props.button = this
+        props.button = this # TODO: Convert this to a 'contextType'.
         render props
+
+  initValues: (options) ->
+
+    icon: options.icon
+
+    text: null
+
+    style: options.style ?= {}
+
+    iconStyle: options.iconStyle ?= {}
+
+    textStyle: options.textStyle ?= {}
 
   init: (options) ->
 
-    @icon = options.icon
+    mergeDefaults @style,
+      flexDirection: "row"
+      alignItems: "center"
 
     if options.text?
       @text = NativeValue options.text
@@ -36,11 +56,13 @@ module.exports = Factory "Button",
       @text = NativeValue options.getText
 
     @tap = Tappable { maxTapCount: options.maxTapCount }
-    @tap.mixin this
+    define this, "didTap", get: -> @tap.didTap.listenable
 
     if options.minHoldTime?
       @hold = Holdable { minHoldTime: options.minHoldTime }
-      @hold.mixin this
+      define this, "didHold", get: -> @hold.didHold.listenable
 
-  _getComponent: ->
+  __loadComponent: ->
     require "./ButtonView"
+
+  __attachListeners: emptyFunction

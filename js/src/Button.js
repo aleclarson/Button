@@ -1,92 +1,78 @@
-var Factory, Holdable, NativeValue, Tappable, define, mergeDefaults, sync;
+var Component, Holdable, NativeValue, Tappable, Type, ref, type;
 
-NativeValue = require("component").NativeValue;
-
-mergeDefaults = require("mergeDefaults");
+ref = require("component"), Component = ref.Component, NativeValue = ref.NativeValue;
 
 Holdable = require("holdable");
 
 Tappable = require("tappable");
 
-Factory = require("factory");
+Type = require("Type");
 
-define = require("define");
+type = Component.Type("Button");
 
-sync = require("sync");
+type.loadComponent(function() {
+  return require("./ButtonView");
+});
 
-module.exports = Factory("Button", {
-  optionTypes: {
-    icon: Number.Maybe,
-    text: String.Maybe,
-    getText: Function.Maybe,
-    maxTapCount: Number.Maybe,
-    minHoldTime: Number.Maybe,
-    style: Object.Maybe,
-    iconStyle: Object.Maybe,
-    textStyle: Object.Maybe
+type.optionTypes = {
+  icon: Number.Maybe,
+  text: String.Maybe,
+  getText: Function.Maybe,
+  maxTapCount: Number.Maybe,
+  minHoldTime: Number.Maybe
+};
+
+type.optionDefaults = {
+  maxTapCount: 1
+};
+
+type.defineStyles({
+  container: {
+    flexDirection: "row",
+    alignItems: "center"
   },
-  optionDefaults: {
-    maxTapCount: 1
+  icon: {},
+  text: {}
+});
+
+type.defineValues({
+  icon: function(options) {
+    return options.icon;
   },
-  customValues: {
-    render: {
-      lazy: function() {
-        var render;
-        render = this.__loadComponent();
-        return (function(_this) {
-          return function(props) {
-            if (props == null) {
-              props = {};
-            }
-            props.button = _this;
-            return render(props);
-          };
-        })(this);
-      }
+  text: function(options) {
+    var value;
+    value = options.getText || options.text;
+    if (value === void 0) {
+      return;
     }
+    return NativeValue(value);
   },
-  initValues: function(options) {
-    return {
-      icon: options.icon,
-      text: null,
-      style: options.style != null ? options.style : options.style = {},
-      iconStyle: options.iconStyle != null ? options.iconStyle : options.iconStyle = {},
-      textStyle: options.textStyle != null ? options.textStyle : options.textStyle = {}
-    };
-  },
-  init: function(options) {
-    mergeDefaults(this.style, {
-      flexDirection: "row",
-      alignItems: "center"
-    });
-    if (options.text != null) {
-      this.text = NativeValue(options.text);
-    } else if (options.getText != null) {
-      this.text = NativeValue(options.getText);
-    }
-    this.tap = Tappable({
+  tap: function(options) {
+    return Tappable({
       maxTapCount: options.maxTapCount
     });
-    define(this, "didTap", {
-      get: function() {
-        return this.tap.didTap.listenable;
-      }
-    });
-    if (options.minHoldTime != null) {
-      this.hold = Holdable({
-        minHoldTime: options.minHoldTime
-      });
-      return define(this, "didHold", {
-        get: function() {
-          return this.hold.didHold.listenable;
-        }
-      });
+  },
+  hold: function(options) {
+    if (options.minHoldTime == null) {
+      return;
     }
-  },
-  __loadComponent: function() {
-    return require("./ButtonView");
-  },
-  __attachListeners: emptyFunction
+    return Holdable({
+      minHoldTime: options.minHoldTime
+    });
+  }
 });
+
+type.defineFrozenValues({
+  didTap: function() {
+    return this.tap.didTap.listenable;
+  },
+  didHold: function() {
+    if (this.hold) {
+      return this.hold.didHold.listenable;
+    }
+  }
+});
+
+module.exports = type.build();
 
 //# sourceMappingURL=../../map/src/Button.map

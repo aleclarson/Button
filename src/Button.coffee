@@ -1,68 +1,58 @@
 
-{ NativeValue } = require "component"
+{ Component, NativeValue } = require "component"
 
-mergeDefaults = require "mergeDefaults"
 Holdable = require "holdable"
 Tappable = require "tappable"
-Factory = require "factory"
-define = require "define"
-sync = require "sync"
+Type = require "Type"
 
-module.exports = Factory "Button",
+type = Component.Type "Button"
 
-  optionTypes:
-    icon: Number.Maybe
-    text: String.Maybe
-    getText: Function.Maybe
-    maxTapCount: Number.Maybe
-    minHoldTime: Number.Maybe
-    style: Object.Maybe
-    iconStyle: Object.Maybe
-    textStyle: Object.Maybe
+type.loadComponent ->
+  require "./ButtonView"
 
-  optionDefaults:
-    maxTapCount: 1
+type.optionTypes =
+  icon: Number.Maybe
+  text: String.Maybe
+  getText: Function.Maybe
+  maxTapCount: Number.Maybe
+  minHoldTime: Number.Maybe
 
-  customValues:
+type.optionDefaults =
+  maxTapCount: 1
 
-    render: lazy: ->
-      render = @__loadComponent()
-      return (props = {}) =>
-        props.button = this # TODO: Convert this to a 'contextType'.
-        render props
+type.defineStyles
 
-  initValues: (options) ->
+  container: {
+    flexDirection: "row"
+    alignItems: "center"
+  }
 
-    icon: options.icon
+  icon: {}
 
-    text: null
+  text: {}
 
-    style: options.style ?= {}
+type.defineValues
 
-    iconStyle: options.iconStyle ?= {}
+  icon: (options) -> options.icon
 
-    textStyle: options.textStyle ?= {}
+  text: (options) ->
+    value = options.getText or options.text
+    return if value is undefined
+    return NativeValue value
 
-  init: (options) ->
+  tap: (options) ->
+    return Tappable
+      maxTapCount: options.maxTapCount
 
-    mergeDefaults @style,
-      flexDirection: "row"
-      alignItems: "center"
+  hold: (options) ->
+    return unless options.minHoldTime?
+    return Holdable
+      minHoldTime: options.minHoldTime
 
-    if options.text?
-      @text = NativeValue options.text
+type.defineFrozenValues
 
-    else if options.getText?
-      @text = NativeValue options.getText
+  didTap: -> @tap.didTap.listenable
 
-    @tap = Tappable { maxTapCount: options.maxTapCount }
-    define this, "didTap", get: -> @tap.didTap.listenable
+  didHold: -> @hold.didHold.listenable if @hold
 
-    if options.minHoldTime?
-      @hold = Holdable { minHoldTime: options.minHoldTime }
-      define this, "didHold", get: -> @hold.didHold.listenable
-
-  __loadComponent: ->
-    require "./ButtonView"
-
-  __attachListeners: emptyFunction
+module.exports = type.build()

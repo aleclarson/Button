@@ -7,39 +7,41 @@ Gesture = require "gesture"
 
 Button = require "./Button"
 
-module.exports = Component "ButtonView",
+type = Component()
 
-  propTypes:
-    button: Button.Kind
+type.contextType = Button
 
-  customValues:
+type.defineProperties
 
-    button: get: ->
-      @props.button
+  button: get: ->
+    @props.button
 
-  initValues: ->
+type.defineValues
 
-    gestures: Gesture.ResponderList [
-      @button.tap
-      @button.hold
-    ]
+  gestures: Gesture.ResponderList [
+    @button.tap
+    @button.hold
+  ]
 
-  initListeners: ->
-    @button.__attachListeners()
+type.createListeners ->
 
-  render: ->
+  @button.__attachListeners()
 
-    if @button.icon?
-      icon = ImageView
-        source: @button.icon
-        style: @button.iconStyle
+type.render ->
 
-    if @button.text?
-      text = ReactiveTextView
-        getText: @button.text.getValue
-        style: @button.textStyle
+  if @button.icon?
+    icon = ImageView
+      source: @button.icon
+      style: @button.iconStyle
 
-    return View
-      style: @button.style
-      children: [ icon, text ]
-      mixins: [ @gestures.touchHandlers ]
+  if @button.text?
+    text = ReactiveTextView
+      getText: @button.text.getValue
+      style: @button.textStyle
+
+  return View
+    style: @button.style
+    children: [ icon, text ]
+    mixins: [ @gestures.touchHandlers ]
+
+module.exports = type.build()

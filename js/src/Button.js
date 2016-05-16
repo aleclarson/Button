@@ -1,12 +1,12 @@
-var Component, Holdable, NativeValue, Tappable, Type, ref, type;
+var Component, Holdable, NativeValue, Tappable, getArgProp, ref, type;
 
 ref = require("component"), Component = ref.Component, NativeValue = ref.NativeValue;
+
+getArgProp = require("getArgProp");
 
 Holdable = require("holdable");
 
 Tappable = require("tappable");
-
-Type = require("Type");
 
 type = Component.Type("Button");
 
@@ -36,9 +36,7 @@ type.defineStyles({
 });
 
 type.defineValues({
-  icon: function(options) {
-    return options.icon;
-  },
+  icon: getArgProp("icon"),
   text: function(options) {
     var value;
     value = options.getText || options.text;

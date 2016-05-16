@@ -1,6 +1,6 @@
-var Button, Component, Gesture, ImageView, ReactiveTextView, Style, Tappable, View, ref, type;
+var Button, Component, Gesture, ImageView, ReactiveTextView, Tappable, View, ref, type;
 
-ref = require("component"), Component = ref.Component, Style = ref.Style, View = ref.View, ImageView = ref.ImageView;
+ref = require("component"), Component = ref.Component, View = ref.View, ImageView = ref.ImageView;
 
 ReactiveTextView = require("ReactiveTextView");
 
@@ -14,40 +14,25 @@ type = Component();
 
 type.contextType = Button;
 
-type.defineProperties({
-  button: {
-    get: function() {
-      return this.props.button;
-    }
-  }
-});
-
-type.defineValues({
-  gestures: Gesture.ResponderList([this.button.tap, this.button.hold])
-});
-
-type.createListeners(function() {
-  return this.button.__attachListeners();
-});
-
 type.render(function() {
-  var icon, text;
-  if (this.button.icon != null) {
+  var gestures, icon, text;
+  if (this.icon) {
     icon = ImageView({
-      source: this.button.icon,
-      style: this.button.iconStyle
+      source: this.icon,
+      style: this.styles.icon()
     });
   }
-  if (this.button.text != null) {
+  if (this.text) {
     text = ReactiveTextView({
-      getText: this.button.text.getValue,
-      style: this.button.textStyle
+      getText: this.text.getValue,
+      style: this.styles.text()
     });
   }
+  gestures = Gesture.ResponderList([this.tap, this.hold]);
   return View({
-    style: this.button.style,
+    style: this.styles.container(),
     children: [icon, text],
-    mixins: [this.gestures.touchHandlers]
+    mixins: [gestures.touchHandlers]
   });
 });
 

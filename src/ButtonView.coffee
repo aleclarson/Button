@@ -1,5 +1,5 @@
 
-{ Component, Style, View, ImageView } = require "component"
+{ Component, View, ImageView } = require "component"
 
 ReactiveTextView = require "ReactiveTextView"
 Tappable = require "tappable"
@@ -11,37 +11,23 @@ type = Component()
 
 type.contextType = Button
 
-type.defineProperties
-
-  button: get: ->
-    @props.button
-
-type.defineValues
-
-  gestures: Gesture.ResponderList [
-    @button.tap
-    @button.hold
-  ]
-
-type.createListeners ->
-
-  @button.__attachListeners()
-
 type.render ->
 
-  if @button.icon?
+  if @icon
     icon = ImageView
-      source: @button.icon
-      style: @button.iconStyle
+      source: @icon
+      style: @styles.icon()
 
-  if @button.text?
+  if @text
     text = ReactiveTextView
-      getText: @button.text.getValue
-      style: @button.textStyle
+      getText: @text.getValue
+      style: @styles.text()
+
+  gestures = Gesture.ResponderList [ @tap, @hold ]
 
   return View
-    style: @button.style
+    style: @styles.container()
     children: [ icon, text ]
-    mixins: [ @gestures.touchHandlers ]
+    mixins: [ gestures.touchHandlers ]
 
 module.exports = type.build()

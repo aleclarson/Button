@@ -1,9 +1,9 @@
 
 { Component, NativeValue } = require "component"
 
+getArgProp = require "getArgProp"
 Holdable = require "holdable"
 Tappable = require "tappable"
-Type = require "Type"
 
 type = Component.Type "Button"
 
@@ -33,7 +33,7 @@ type.defineStyles
 
 type.defineValues
 
-  icon: (options) -> options.icon
+  icon: getArgProp "icon"
 
   text: (options) ->
     value = options.getText or options.text

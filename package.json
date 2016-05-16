@@ -1,14 +1,14 @@
 {
   "name": "Button",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "js/src/Button",
   "dependencies": {
     "ReactiveTextView": "aleclarson/ReactiveTextView#1.0.0",
     "component": "aleclarson/component#1.0.0",
     "gesture": "aleclarson/gesture#1.0.0",
+    "getArgProp": "aleclarson/getArgProp#1.0.0",
     "holdable": "aleclarson/holdable#1.0.0",
-    "tappable": "aleclarson/tappable#1.0.0",
-    "Type": "aleclarson/Type#1.0.0"
+    "tappable": "aleclarson/tappable#1.0.0"
   },
   "lotus": {
     "plugins": [

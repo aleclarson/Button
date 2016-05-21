@@ -1,6 +1,8 @@
-var Component, Holdable, NativeValue, Tappable, getArgProp, ref, type;
+var Component, Gesture, Holdable, ImageView, NativeValue, ReactiveTextView, Tappable, View, getArgProp, ref, type;
 
-ref = require("component"), Component = ref.Component, NativeValue = ref.NativeValue;
+ref = require("component"), Component = ref.Component, NativeValue = ref.NativeValue, View = ref.View, ImageView = ref.ImageView;
+
+ReactiveTextView = require("ReactiveTextView");
 
 getArgProp = require("getArgProp");
 
@@ -8,11 +10,9 @@ Holdable = require("holdable");
 
 Tappable = require("tappable");
 
-type = Component.Type("Button");
+Gesture = require("gesture");
 
-type.loadComponent(function() {
-  return require("./ButtonView");
-});
+type = Component.Type("Button");
 
 type.optionTypes = {
   icon: Number.Maybe,
@@ -25,15 +25,6 @@ type.optionTypes = {
 type.optionDefaults = {
   maxTapCount: 1
 };
-
-type.defineStyles({
-  container: {
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  icon: {},
-  text: {}
-});
 
 type.defineValues({
   icon: getArgProp("icon"),
@@ -57,6 +48,12 @@ type.defineValues({
     return Holdable({
       minHoldTime: options.minHoldTime
     });
+  },
+  _gestures: function() {
+    if (!this.hold) {
+      return this.tap;
+    }
+    return Gesture.ResponderList([this.tap, this.hold]);
   }
 });
 
@@ -68,6 +65,44 @@ type.defineFrozenValues({
     if (this.hold) {
       return this.hold.didHold.listenable;
     }
+  }
+});
+
+type.defineStyles({
+  container: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  icon: {},
+  text: {}
+});
+
+type.render(function() {
+  return View({
+    style: this.styles.container(),
+    children: [this.__renderIcon(), this.__renderText()],
+    mixins: [this._gestures.touchHandlers]
+  });
+});
+
+type.defineMethods({
+  __renderIcon: function() {
+    if (!this.icon) {
+      return;
+    }
+    return ImageView({
+      source: this.icon,
+      style: this.styles.icon()
+    });
+  },
+  __renderText: function() {
+    if (!this.text) {
+      return;
+    }
+    return ReactiveTextView({
+      getText: this.text.getValue,
+      style: this.styles.text()
+    });
   }
 });
 

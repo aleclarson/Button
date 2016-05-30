@@ -68,24 +68,18 @@ type.defineFrozenValues({
   }
 });
 
-type.defineStyles({
-  container: {
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  icon: {},
-  text: {}
-});
-
 type.render(function() {
   return View({
     style: this.styles.container(),
-    children: [this.__renderIcon(), this.__renderText()],
+    children: this.__renderChildren(),
     mixins: [this._gestures.touchHandlers]
   });
 });
 
 type.defineMethods({
+  __renderChildren: function() {
+    return [this.__renderIcon(), this.__renderText()];
+  },
   __renderIcon: function() {
     if (!this.icon) {
       return;
@@ -104,6 +98,15 @@ type.defineMethods({
       style: this.styles.text()
     });
   }
+});
+
+type.defineStyles({
+  container: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  icon: {},
+  text: {}
 });
 
 module.exports = type.build();

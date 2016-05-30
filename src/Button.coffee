@@ -47,29 +47,20 @@ type.defineFrozenValues
 
   didHold: -> @hold.didHold.listenable if @hold
 
-type.defineStyles
-
-  container: {
-    flexDirection: "row"
-    alignItems: "center"
-  }
-
-  icon: {}
-
-  text: {}
-
 type.render ->
   return View
     style: @styles.container()
-    children: [
-      @__renderIcon()
-      @__renderText()
-    ]
+    children: @__renderChildren()
     mixins: [
       @_gestures.touchHandlers
     ]
 
 type.defineMethods
+
+  __renderChildren: -> [
+    @__renderIcon()
+    @__renderText()
+  ]
 
   __renderIcon: ->
     return if not @icon
@@ -82,5 +73,16 @@ type.defineMethods
     return ReactiveTextView
       getText: @text.getValue
       style: @styles.text()
+
+type.defineStyles
+
+  container: {
+    flexDirection: "row"
+    alignItems: "center"
+  }
+
+  icon: {}
+
+  text: {}
 
 module.exports = type.build()

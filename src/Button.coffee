@@ -1,68 +1,112 @@
 
-{ NativeValue } = require "component"
+{ Component, NativeValue, View, ImageView } = require "component"
 
-mergeDefaults = require "mergeDefaults"
+ReactiveTextView = require "ReactiveTextView"
+getArgProp = require "getArgProp"
 Holdable = require "holdable"
 Tappable = require "tappable"
-Factory = require "factory"
-define = require "define"
-sync = require "sync"
+Gesture = require "gesture"
 
-module.exports = Factory "Button",
+type = Component.Type "Button"
 
-  optionTypes:
-    icon: Number.Maybe
-    text: String.Maybe
-    getText: Function.Maybe
-    maxTapCount: Number.Maybe
-    minHoldTime: Number.Maybe
-    style: Object.Maybe
-    iconStyle: Object.Maybe
-    textStyle: Object.Maybe
+type.optionTypes =
+  icon: Number.Maybe
+  text: String.Maybe
+  getText: Function.Maybe
+  maxTapCount: Number.Maybe
+  minHoldTime: Number.Maybe
+  preventDistance: Number.Maybe
 
-  optionDefaults:
-    maxTapCount: 1
+type.optionDefaults =
+  maxTapCount: 1
 
-  customValues:
+type.defineValues
 
-    render: lazy: ->
-      render = @__loadComponent()
-      return (props = {}) =>
-        props.button = this # TODO: Convert this to a 'contextType'.
-        render props
+  _icon: getArgProp "icon"
 
-  initValues: (options) ->
+  _text: (options) ->
+    value = options.getText or options.text
+    return if value is undefined
+    return NativeValue value
 
-    icon: options.icon
+  _tap: (options) ->
+    return Tappable
+      maxTapCount: options.maxTapCount
+      preventDistance: options.preventDistance
 
-    text: null
+  _hold: (options) ->
+    return if not options.minHoldTime?
+    return Holdable
+      minHoldTime: options.minHoldTime
+      preventDistance: options.preventDistance
 
-    style: options.style ?= {}
+  _gestures: ->
+    return @_tap if not @_hold
+    Gesture.ResponderList [ @_tap, @_hold ]
 
-    iconStyle: options.iconStyle ?= {}
+type.definePrototype
 
-    textStyle: options.textStyle ?= {}
+  didTap: get: ->
+    @_tap.didTap.listenable
 
-  init: (options) ->
+  didHold: get: ->
+    return if not @_hold
+    @_hold.didHold.listenable
 
-    mergeDefaults @style,
-      flexDirection: "row"
-      alignItems: "center"
+  didReject: get: ->
+    @_tap.didReject.listenable
 
-    if options.text?
-      @text = NativeValue options.text
+  didGrant: get: ->
+    @_tap.didGrant.listenable
 
-    else if options.getText?
-      @text = NativeValue options.getText
+  didEnd: get: ->
+    @_tap.didEnd.listenable
 
-    @tap = Tappable { maxTapCount: options.maxTapCount }
-    define this, "didTap", get: -> @tap.didTap.listenable
+  didTouchStart: get: ->
+    @_tap.didTouchStart.listenable
 
-    if options.minHoldTime?
-      @hold = Holdable { minHoldTime: options.minHoldTime }
-      define this, "didHold", get: -> @hold.didHold.listenable
+  didTouchMove: get: ->
+    @_tap.didTouchMove.listenable
 
-  __loadComponent: ->
-    require "./ButtonView"
+  didTouchEnd: get: ->
+    @_tap.didTouchEnd.listenable
 
-  __attachListeners: emptyFunction
+type.defineMethods
+
+  __renderIcon: ->
+    return if not @_icon
+    return ImageView
+      source: @_icon
+      style: @styles.icon()
+
+  __renderText: ->
+    return if not @_text
+    return ReactiveTextView
+      getText: @_text.getValue
+      style: @styles.text()
+
+  __renderChildren: -> [
+    @__renderIcon()
+    @__renderText()
+  ]
+
+type.render ->
+  return View
+    style: @styles.container()
+    children: @__renderChildren()
+    mixins: [
+      @_gestures.touchHandlers
+    ]
+
+type.defineStyles
+
+  container: {
+    flexDirection: "row"
+    alignItems: "center"
+  }
+
+  icon: null
+
+  text: null
+
+module.exports = type.build()

@@ -1,62 +1,76 @@
 
-# Button v1.0.0 ![stable](https://img.shields.io/badge/stability-stable-4EBA0F.svg?style=flat)
+# Button 2.0.0 ![stable](https://img.shields.io/badge/stability-stable-4EBA0F.svg?style=flat)
 
-A button model + view designed for React Native + CoffeeScript.
+A "simple as fuck" button class for React Native.
 
--
+```coffee
+Button = require "Button"
 
-### options
+button = Button
+  text: "Hello world"
 
-##### icon : Number.Maybe
+button.didTap ->
+  console.log "The user tapped our button!"
 
-Combines with `options.iconStyle` and an `ImageView`.
+button.didHold ->
+  console.log "The user long-pressed our button!"
 
-#### text : String.Maybe
+element = button.render()
+```
 
-Combines with `options.textStyle` and a `TextView`.
+### optionTypes
 
-**Note:** Cannot be used with `options.getText`!
+```coffee
+# Supports `require("image!name")`
+icon: [ Number, Void ]
 
-#### getText : Function.Maybe
+# A constant string to render inside the button.
+text: [ String, Void ]
 
-If defined, this must depend on a reactive `String`!
+# Should return a reactive string if you want to automate re-rendering.
+getText: [ Function, Void ]
 
-#### maxTapCount : Number.Maybe
+# The number of taps to recognize before resetting the count. (defaults to 1)
+maxTapCount: [ Number, Void ]
 
-The number of taps that `this.tap` can recognize.
+# The number of milliseconds to wait before recognizing the hold.
+minHoldTime: [ Number, Void ]
 
-#### minHoldTime : Number.Maybe
+# The maximum movement from the first touch before a gesture should not be recognized.
+preventDistance: [ Number, Void ]
+```
 
-This must be defined for `this.hold` to be created.
+### overrideMethods
 
-#### style : Object.Maybe
+You can override these methods safely (just use `Type#overrideMethods`).
 
-The style applied to the base container `View`.
+```coffee
+# Override if you want to use another icon component.
+__renderIcon()
 
-#### iconStyle : Object.Maybe
+# Override if you want to use another text component.
+__renderText()
 
-The style applied to the icon's `ImageView`.
+# By default, this calls '__renderIcon' and '__renderText'.
+__renderChildren()
+```
 
-#### textStyle : Object.Maybe
+### defineStyles
 
-The style applied to the text's `TextView`.
+These styles are inherited.
 
-### properties
+Modify your subclass styles using `Type#defineStyles` and/or `Type#overrideStyles`!
 
-#### didTap : Event
+```coffee
+# The style of the button view.
+container: {
+  flexDirection: "row"
+  alignItems: "center"
+}
 
-Emits when a tap is recognized.
+# The style of the optional icon view.
+icon: {}
 
-This is a shortcut to `this.tap.didTap`.
-
-#### didHold : Event
-
-Emits when a long press is recognized.
-
-Only exists when `options.minHoldTime` is defined.
-
-This is a shortcut to `this.hold.didHold`.
-
-#### render() : ReactElement
-
-Renders the button using the properties of this instance.
+# The style of the optional text view.
+text: {}
+```

@@ -15,37 +15,80 @@ type.optionTypes =
   getText: Function.Maybe
   maxTapCount: Number.Maybe
   minHoldTime: Number.Maybe
+  preventDistance: Number.Maybe
 
 type.optionDefaults =
   maxTapCount: 1
 
 type.defineValues
 
-  icon: getArgProp "icon"
+  _icon: getArgProp "icon"
 
-  text: (options) ->
+  _text: (options) ->
     value = options.getText or options.text
     return if value is undefined
     return NativeValue value
 
-  tap: (options) ->
+  _tap: (options) ->
     return Tappable
       maxTapCount: options.maxTapCount
+      preventDistance: options.preventDistance
 
-  hold: (options) ->
+  _hold: (options) ->
     return if not options.minHoldTime?
     return Holdable
       minHoldTime: options.minHoldTime
+      preventDistance: options.preventDistance
 
   _gestures: ->
-    return @tap if not @hold
-    Gesture.ResponderList [ @tap, @hold ]
+    return @_tap if not @_hold
+    Gesture.ResponderList [ @_tap, @_hold ]
 
-type.defineFrozenValues
+type.definePrototype
 
-  didTap: -> @tap.didTap.listenable
+  didTap: get: ->
+    @_tap.didTap.listenable
 
-  didHold: -> @hold.didHold.listenable if @hold
+  didHold: get: ->
+    return if not @_hold
+    @_hold.didHold.listenable
+
+  didReject: get: ->
+    @_tap.didReject.listenable
+
+  didGrant: get: ->
+    @_tap.didGrant.listenable
+
+  didEnd: get: ->
+    @_tap.didEnd.listenable
+
+  didTouchStart: get: ->
+    @_tap.didTouchStart.listenable
+
+  didTouchMove: get: ->
+    @_tap.didTouchMove.listenable
+
+  didTouchEnd: get: ->
+    @_tap.didTouchEnd.listenable
+
+type.defineMethods
+
+  __renderIcon: ->
+    return if not @_icon
+    return ImageView
+      source: @_icon
+      style: @styles.icon()
+
+  __renderText: ->
+    return if not @_text
+    return ReactiveTextView
+      getText: @_text.getValue
+      style: @styles.text()
+
+  __renderChildren: -> [
+    @__renderIcon()
+    @__renderText()
+  ]
 
 type.render ->
   return View
@@ -55,25 +98,6 @@ type.render ->
       @_gestures.touchHandlers
     ]
 
-type.defineMethods
-
-  __renderChildren: -> [
-    @__renderIcon()
-    @__renderText()
-  ]
-
-  __renderIcon: ->
-    return if not @icon
-    return ImageView
-      source: @icon
-      style: @styles.icon()
-
-  __renderText: ->
-    return if not @text
-    return ReactiveTextView
-      getText: @text.getValue
-      style: @styles.text()
-
 type.defineStyles
 
   container: {
@@ -81,8 +105,8 @@ type.defineStyles
     alignItems: "center"
   }
 
-  icon: {}
+  icon: null
 
-  text: {}
+  text: null
 
 module.exports = type.build()

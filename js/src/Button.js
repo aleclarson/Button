@@ -19,7 +19,8 @@ type.optionTypes = {
   text: String.Maybe,
   getText: Function.Maybe,
   maxTapCount: Number.Maybe,
-  minHoldTime: Number.Maybe
+  minHoldTime: Number.Maybe,
+  preventDistance: Number.Maybe
 };
 
 type.optionDefaults = {
@@ -27,8 +28,8 @@ type.optionDefaults = {
 };
 
 type.defineValues({
-  icon: getArgProp("icon"),
-  text: function(options) {
+  _icon: getArgProp("icon"),
+  _text: function(options) {
     var value;
     value = options.getText || options.text;
     if (value === void 0) {
@@ -36,35 +37,96 @@ type.defineValues({
     }
     return NativeValue(value);
   },
-  tap: function(options) {
+  _tap: function(options) {
     return Tappable({
-      maxTapCount: options.maxTapCount
+      maxTapCount: options.maxTapCount,
+      preventDistance: options.preventDistance
     });
   },
-  hold: function(options) {
+  _hold: function(options) {
     if (options.minHoldTime == null) {
       return;
     }
     return Holdable({
-      minHoldTime: options.minHoldTime
+      minHoldTime: options.minHoldTime,
+      preventDistance: options.preventDistance
     });
   },
   _gestures: function() {
-    if (!this.hold) {
-      return this.tap;
+    if (!this._hold) {
+      return this._tap;
     }
-    return Gesture.ResponderList([this.tap, this.hold]);
+    return Gesture.ResponderList([this._tap, this._hold]);
   }
 });
 
-type.defineFrozenValues({
-  didTap: function() {
-    return this.tap.didTap.listenable;
-  },
-  didHold: function() {
-    if (this.hold) {
-      return this.hold.didHold.listenable;
+type.definePrototype({
+  didTap: {
+    get: function() {
+      return this._tap.didTap.listenable;
     }
+  },
+  didHold: {
+    get: function() {
+      if (!this._hold) {
+        return;
+      }
+      return this._hold.didHold.listenable;
+    }
+  },
+  didReject: {
+    get: function() {
+      return this._tap.didReject.listenable;
+    }
+  },
+  didGrant: {
+    get: function() {
+      return this._tap.didGrant.listenable;
+    }
+  },
+  didEnd: {
+    get: function() {
+      return this._tap.didEnd.listenable;
+    }
+  },
+  didTouchStart: {
+    get: function() {
+      return this._tap.didTouchStart.listenable;
+    }
+  },
+  didTouchMove: {
+    get: function() {
+      return this._tap.didTouchMove.listenable;
+    }
+  },
+  didTouchEnd: {
+    get: function() {
+      return this._tap.didTouchEnd.listenable;
+    }
+  }
+});
+
+type.defineMethods({
+  __renderIcon: function() {
+    if (!this._icon) {
+      return;
+    }
+    return ImageView({
+      source: this._icon,
+      style: this.styles.icon()
+    });
+  },
+  __renderText: function() {
+    if (!this._text) {
+      return;
+    }
+    return ReactiveTextView({
+      getText: this._text.getValue,
+      style: this.styles.text()
+    });
+  },
+  __renderChildren: function() {
+    return [this.__renderIcon(), this.__renderText()];
   }
 });
 
@@ -76,37 +138,13 @@ type.render(function() {
   });
 });
 
-type.defineMethods({
-  __renderChildren: function() {
-    return [this.__renderIcon(), this.__renderText()];
-  },
-  __renderIcon: function() {
-    if (!this.icon) {
-      return;
-    }
-    return ImageView({
-      source: this.icon,
-      style: this.styles.icon()
-    });
-  },
-  __renderText: function() {
-    if (!this.text) {
-      return;
-    }
-    return ReactiveTextView({
-      getText: this.text.getValue,
-      style: this.styles.text()
-    });
-  }
-});
-
 type.defineStyles({
   container: {
     flexDirection: "row",
     alignItems: "center"
   },
-  icon: {},
-  text: {}
+  icon: null,
+  text: null
 });
 
 module.exports = type.build();

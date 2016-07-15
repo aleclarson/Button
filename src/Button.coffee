@@ -2,27 +2,24 @@
 { Component, NativeValue, View, ImageView } = require "component"
 
 ReactiveTextView = require "ReactiveTextView"
-getArgProp = require "getArgProp"
+fromArgs = require "fromArgs"
 Holdable = require "holdable"
 Tappable = require "tappable"
 Gesture = require "gesture"
 
 type = Component.Type "Button"
 
-type.optionTypes =
-  icon: Number.Maybe
-  text: String.Maybe
-  getText: Function.Maybe
-  maxTapCount: Number.Maybe
-  minHoldTime: Number.Maybe
-  preventDistance: Number.Maybe
-
-type.optionDefaults =
-  maxTapCount: 1
+type.defineOptions
+  icon: Number
+  text: String
+  getText: Function
+  maxTapCount: Number.withDefault 1
+  minHoldTime: Number
+  preventDistance: Number
 
 type.defineValues
 
-  _icon: getArgProp "icon"
+  _icon: fromArgs "icon"
 
   _text: (options) ->
     value = options.getText or options.text
@@ -105,7 +102,11 @@ type.defineStyles
     alignItems: "center"
   }
 
-  icon: null
+  icon: {
+    flex: 1
+    alignSelf: "stretch"
+    resizeMode: "center"
+  }
 
   text: null
 

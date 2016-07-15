@@ -1,10 +1,10 @@
-var Component, Gesture, Holdable, ImageView, NativeValue, ReactiveTextView, Tappable, View, getArgProp, ref, type;
+var Component, Gesture, Holdable, ImageView, NativeValue, ReactiveTextView, Tappable, View, fromArgs, ref, type;
 
 ref = require("component"), Component = ref.Component, NativeValue = ref.NativeValue, View = ref.View, ImageView = ref.ImageView;
 
 ReactiveTextView = require("ReactiveTextView");
 
-getArgProp = require("getArgProp");
+fromArgs = require("fromArgs");
 
 Holdable = require("holdable");
 
@@ -14,21 +14,17 @@ Gesture = require("gesture");
 
 type = Component.Type("Button");
 
-type.optionTypes = {
-  icon: Number.Maybe,
-  text: String.Maybe,
-  getText: Function.Maybe,
-  maxTapCount: Number.Maybe,
-  minHoldTime: Number.Maybe,
-  preventDistance: Number.Maybe
-};
-
-type.optionDefaults = {
-  maxTapCount: 1
-};
+type.defineOptions({
+  icon: Number,
+  text: String,
+  getText: Function,
+  maxTapCount: Number.withDefault(1),
+  minHoldTime: Number,
+  preventDistance: Number
+});
 
 type.defineValues({
-  _icon: getArgProp("icon"),
+  _icon: fromArgs("icon"),
   _text: function(options) {
     var value;
     value = options.getText || options.text;
@@ -143,10 +139,14 @@ type.defineStyles({
     flexDirection: "row",
     alignItems: "center"
   },
-  icon: null,
+  icon: {
+    flex: 1,
+    alignSelf: "stretch",
+    resizeMode: "center"
+  },
   text: null
 });
 
 module.exports = type.build();
 
-//# sourceMappingURL=../../map/src/Button.map
+//# sourceMappingURL=map/Button.map

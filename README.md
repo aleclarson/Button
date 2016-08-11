@@ -1,8 +1,6 @@
 
 # Button 2.0.0 ![stable](https://img.shields.io/badge/stability-stable-4EBA0F.svg?style=flat)
 
-A "simple as fuck" button class for React Native.
-
 ```coffee
 Button = require "Button"
 
@@ -42,7 +40,7 @@ preventDistance: [ Number, Void ]
 
 ### overrideMethods
 
-You can override these methods safely (just use `Type#overrideMethods`).
+You can use `type.overrideMethods()` to take
 
 ```coffee
 # Override if you want to use another icon component.
@@ -55,22 +53,22 @@ __renderText()
 __renderChildren()
 ```
 
-### defineStyles
+### Styles
 
-These styles are inherited.
-
-Modify your subclass styles using `Type#defineStyles` and/or `Type#overrideStyles`!
+You must use `type.appendStyles()` if you want to augment these styles!
 
 ```coffee
 # The style of the button view.
-container: {
+container:
   flexDirection: "row"
   alignItems: "center"
-}
 
 # The style of the optional icon view.
-icon: {}
+icon:
+  flex: 1
+  alignSelf: "stretch"
+  resizeMode: "center"
 
 # The style of the optional text view.
-text: {}
+text: null
 ```

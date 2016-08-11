@@ -1,5 +1,7 @@
 
-{ Component, NativeValue, View, ImageView } = require "component"
+{View, ImageView} = require "modx/views"
+{NativeValue} = require "modx/native"
+{Type} = require "modx"
 
 ReactiveTextView = require "ReactiveTextView"
 fromArgs = require "fromArgs"
@@ -7,7 +9,7 @@ Holdable = require "holdable"
 Tappable = require "tappable"
 Gesture = require "gesture"
 
-type = Component.Type "Button"
+type = Type "Button"
 
 type.defineOptions
   icon: Number
@@ -16,10 +18,15 @@ type.defineOptions
   maxTapCount: Number.withDefault 1
   minHoldTime: Number
   preventDistance: Number
+  centerIcon: Boolean.withDefault no
+
+type.defineValues (options) ->
+
+  _icon: options.icon
+
+  _centerIcon: options.centerIcon
 
 type.defineValues
-
-  _icon: fromArgs "icon"
 
   _text: (options) ->
     value = options.getText or options.text
@@ -37,49 +44,51 @@ type.defineValues
       minHoldTime: options.minHoldTime
       preventDistance: options.preventDistance
 
-  _gestures: ->
-    return @_tap if not @_hold
-    Gesture.ResponderList [ @_tap, @_hold ]
+  _touchHandlers: ->
+    return @_tap.touchHandlers if not @_hold
+    responder = Gesture.ResponderList [ @_tap, @_hold ]
+    return responder.touchHandlers
 
-type.definePrototype
+type.defineGetters
 
-  didTap: get: ->
+  didTap: ->
     @_tap.didTap.listenable
 
-  didHold: get: ->
-    return if not @_hold
+  didHold: ->
+    return if @_hold
     @_hold.didHold.listenable
 
-  didReject: get: ->
+  didReject: ->
     @_tap.didReject.listenable
 
-  didGrant: get: ->
+  didGrant: ->
     @_tap.didGrant.listenable
 
-  didEnd: get: ->
+  didEnd: ->
     @_tap.didEnd.listenable
 
-  didTouchStart: get: ->
+  didTouchStart: ->
     @_tap.didTouchStart.listenable
 
-  didTouchMove: get: ->
+  didTouchMove: ->
     @_tap.didTouchMove.listenable
 
-  didTouchEnd: get: ->
+  didTouchEnd: ->
     @_tap.didTouchEnd.listenable
 
-type.defineMethods
+type.defineHooks
 
   __renderIcon: ->
-    return if not @_icon
-    return ImageView
-      source: @_icon
-      style: @styles.icon()
+    source = @_icon
+    return if not source
+    style = []
+    @styles.icon and style.push @styles.icon()
+    @_centerIcon and style.push @styles.centered()
+    return ImageView { source, style }
 
   __renderText: ->
-    return if not @_text
-    return ReactiveTextView
-      getText: @_text.getValue
+    @_text and ReactiveTextView
+      getText: => @_text.value
       style: @styles.text()
 
   __renderChildren: -> [
@@ -91,22 +100,22 @@ type.render ->
   return View
     style: @styles.container()
     children: @__renderChildren()
-    mixins: [
-      @_gestures.touchHandlers
-    ]
+    mixins: [ @_touchHandlers ]
 
 type.defineStyles
 
-  container: {
+  container:
     flexDirection: "row"
     alignItems: "center"
-  }
 
-  icon: {
+  # Set 'options.centerIcon' to true
+  # to use this as the icon style.
+  centered:
     flex: 1
     alignSelf: "stretch"
     resizeMode: "center"
-  }
+
+  icon: null
 
   text: null
 

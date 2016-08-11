@@ -1,6 +1,10 @@
-var Component, Gesture, Holdable, ImageView, NativeValue, ReactiveTextView, Tappable, View, fromArgs, ref, type;
+var Gesture, Holdable, ImageView, NativeValue, ReactiveTextView, Tappable, Type, View, fromArgs, ref, type;
 
-ref = require("component"), Component = ref.Component, NativeValue = ref.NativeValue, View = ref.View, ImageView = ref.ImageView;
+ref = require("modx/views"), View = ref.View, ImageView = ref.ImageView;
+
+NativeValue = require("modx/native").NativeValue;
+
+Type = require("modx").Type;
 
 ReactiveTextView = require("ReactiveTextView");
 
@@ -12,7 +16,7 @@ Tappable = require("tappable");
 
 Gesture = require("gesture");
 
-type = Component.Type("Button");
+type = Type("Button");
 
 type.defineOptions({
   icon: Number,
@@ -20,11 +24,18 @@ type.defineOptions({
   getText: Function,
   maxTapCount: Number.withDefault(1),
   minHoldTime: Number,
-  preventDistance: Number
+  preventDistance: Number,
+  centerIcon: Boolean.withDefault(false)
+});
+
+type.defineValues(function(options) {
+  return {
+    _icon: options.icon,
+    _centerIcon: options.centerIcon
+  };
 });
 
 type.defineValues({
-  _icon: fromArgs("icon"),
   _text: function(options) {
     var value;
     value = options.getText || options.text;
@@ -48,76 +59,68 @@ type.defineValues({
       preventDistance: options.preventDistance
     });
   },
-  _gestures: function() {
+  _touchHandlers: function() {
+    var responder;
     if (!this._hold) {
-      return this._tap;
+      return this._tap.touchHandlers;
     }
-    return Gesture.ResponderList([this._tap, this._hold]);
+    responder = Gesture.ResponderList([this._tap, this._hold]);
+    return responder.touchHandlers;
   }
 });
 
-type.definePrototype({
-  didTap: {
-    get: function() {
-      return this._tap.didTap.listenable;
-    }
+type.defineGetters({
+  didTap: function() {
+    return this._tap.didTap.listenable;
   },
-  didHold: {
-    get: function() {
-      if (!this._hold) {
-        return;
-      }
-      return this._hold.didHold.listenable;
-    }
-  },
-  didReject: {
-    get: function() {
-      return this._tap.didReject.listenable;
-    }
-  },
-  didGrant: {
-    get: function() {
-      return this._tap.didGrant.listenable;
-    }
-  },
-  didEnd: {
-    get: function() {
-      return this._tap.didEnd.listenable;
-    }
-  },
-  didTouchStart: {
-    get: function() {
-      return this._tap.didTouchStart.listenable;
-    }
-  },
-  didTouchMove: {
-    get: function() {
-      return this._tap.didTouchMove.listenable;
-    }
-  },
-  didTouchEnd: {
-    get: function() {
-      return this._tap.didTouchEnd.listenable;
-    }
-  }
-});
-
-type.defineMethods({
-  __renderIcon: function() {
-    if (!this._icon) {
+  didHold: function() {
+    if (this._hold) {
       return;
     }
+    return this._hold.didHold.listenable;
+  },
+  didReject: function() {
+    return this._tap.didReject.listenable;
+  },
+  didGrant: function() {
+    return this._tap.didGrant.listenable;
+  },
+  didEnd: function() {
+    return this._tap.didEnd.listenable;
+  },
+  didTouchStart: function() {
+    return this._tap.didTouchStart.listenable;
+  },
+  didTouchMove: function() {
+    return this._tap.didTouchMove.listenable;
+  },
+  didTouchEnd: function() {
+    return this._tap.didTouchEnd.listenable;
+  }
+});
+
+type.defineHooks({
+  __renderIcon: function() {
+    var source, style;
+    source = this._icon;
+    if (!source) {
+      return;
+    }
+    style = [];
+    this.styles.icon && style.push(this.styles.icon());
+    this._centerIcon && style.push(this.styles.centered());
     return ImageView({
-      source: this._icon,
-      style: this.styles.icon()
+      source: source,
+      style: style
     });
   },
   __renderText: function() {
-    if (!this._text) {
-      return;
-    }
-    return ReactiveTextView({
-      getText: this._text.getValue,
+    return this._text && ReactiveTextView({
+      getText: (function(_this) {
+        return function() {
+          return _this._text.value;
+        };
+      })(this),
       style: this.styles.text()
     });
   },
@@ -130,7 +133,7 @@ type.render(function() {
   return View({
     style: this.styles.container(),
     children: this.__renderChildren(),
-    mixins: [this._gestures.touchHandlers]
+    mixins: [this._touchHandlers]
   });
 });
 
@@ -139,11 +142,12 @@ type.defineStyles({
     flexDirection: "row",
     alignItems: "center"
   },
-  icon: {
+  centered: {
     flex: 1,
     alignSelf: "stretch",
     resizeMode: "center"
   },
+  icon: null,
   text: null
 });
 

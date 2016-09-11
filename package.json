@@ -4,7 +4,6 @@
   "main": "js/Button",
   "dependencies": {
     "ReactiveTextView": "aleclarson/ReactiveTextView#1.0.0",
-    "fromArgs": "aleclarson/fromArgs#1.0.0",
     "gesture": "aleclarson/gesture#1.0.0",
     "holdable": "aleclarson/holdable#1.0.0",
     "modx": "aleclarson/modx#1.0.0",

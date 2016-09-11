@@ -4,7 +4,6 @@
 {Type} = require "modx"
 
 ReactiveTextView = require "ReactiveTextView"
-fromArgs = require "fromArgs"
 Holdable = require "holdable"
 Tappable = require "tappable"
 Gesture = require "gesture"
@@ -31,7 +30,8 @@ type.defineValues
   _text: (options) ->
     value = options.getText or options.text
     return if value is undefined
-    return NativeValue value
+    value = NativeValue value
+    return value.__attach()
 
   _tap: (options) ->
     return Tappable
@@ -48,6 +48,10 @@ type.defineValues
     return @_tap.touchHandlers if not @_hold
     responder = Gesture.ResponderList [ @_tap, @_hold ]
     return responder.touchHandlers
+
+#
+# Prototype
+#
 
 type.defineGetters
 
@@ -76,6 +80,33 @@ type.defineGetters
   didTouchEnd: ->
     @_tap.didTouchEnd.listenable
 
+#
+# Rendering
+#
+
+type.defineStyles
+
+  container:
+    flexDirection: "row"
+    alignItems: "center"
+
+  # Set 'options.centerIcon' to true
+  # to use this as the icon style.
+  centered:
+    flex: 1
+    alignSelf: "stretch"
+    resizeMode: "center"
+
+  icon: null
+
+  text: null
+
+type.render ->
+  return View
+    style: @styles.container()
+    children: @__renderChildren()
+    mixins: [ @_touchHandlers ]
+
 type.defineHooks
 
   __renderIcon: ->
@@ -95,28 +126,5 @@ type.defineHooks
     @__renderIcon()
     @__renderText()
   ]
-
-type.render ->
-  return View
-    style: @styles.container()
-    children: @__renderChildren()
-    mixins: [ @_touchHandlers ]
-
-type.defineStyles
-
-  container:
-    flexDirection: "row"
-    alignItems: "center"
-
-  # Set 'options.centerIcon' to true
-  # to use this as the icon style.
-  centered:
-    flex: 1
-    alignSelf: "stretch"
-    resizeMode: "center"
-
-  icon: null
-
-  text: null
 
 module.exports = type.build()

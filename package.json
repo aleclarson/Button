@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "ReactiveTextView": "aleclarson/ReactiveTextView#1.0.0",
-    "gesture": "aleclarson/gesture#1.0.0",
+    "gesture": "aleclarson/gesture#2.0.1",
     "holdable": "aleclarson/holdable#1.0.0",
     "modx": "aleclarson/modx#1.0.0",
     "postinstall-build": "0.2.x",

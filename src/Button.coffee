@@ -11,7 +11,7 @@ Gesture = require "gesture"
 type = Type "Button"
 
 type.defineOptions
-  icon: Number
+  icon: Object
   text: String
   getText: Function
   maxTapCount: Number.withDefault 1

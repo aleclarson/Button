@@ -21,9 +21,9 @@ type.defineOptions
 
 type.defineValues (options) ->
 
-  _icon: options.icon
+  icon: options.icon
 
-  _centerIcon: options.centerIcon
+  centerIcon: options.centerIcon
 
 type.defineValues
 
@@ -110,11 +110,11 @@ type.render ->
 type.defineHooks
 
   __renderIcon: ->
-    source = @_icon
+    source = @icon
     return if not source
     style = []
     @styles.icon and style.push @styles.icon()
-    @_centerIcon and style.push @styles.centered()
+    @centerIcon and style.push @styles.centered()
     return ImageView { source, style }
 
   __renderText: ->

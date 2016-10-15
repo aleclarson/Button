@@ -103,15 +103,14 @@ type.render ->
 type.defineHooks
 
   __renderIcon: ->
-    source = @icon
-    return if not source
-    style = []
-    @styles.icon and style.push @styles.icon()
-    return ImageView { source, style }
+    return no if not source = @icon
+    @styles.icon and style = @styles.icon()
+    return ImageView {source, style}
 
   __renderText: ->
-    @_text and ReactiveTextView
-      getText: => @_text.value
+    return no if not text = @_text
+    return ReactiveTextView
+      getText: -> text.value
       style: @styles.text()
 
   __renderChildren: -> [

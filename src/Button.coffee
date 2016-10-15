@@ -17,13 +17,10 @@ type.defineOptions
   maxTapCount: Number.withDefault 1
   minHoldTime: Number
   preventDistance: Number
-  centerIcon: Boolean.withDefault no
 
 type.defineValues (options) ->
 
   icon: options.icon
-
-  centerIcon: options.centerIcon
 
 type.defineValues
 
@@ -90,13 +87,6 @@ type.defineStyles
     flexDirection: "row"
     alignItems: "center"
 
-  # Set 'options.centerIcon' to true
-  # to use this as the icon style.
-  centered:
-    flex: 1
-    alignSelf: "stretch"
-    resizeMode: "center"
-
   icon: null
 
   text: null
@@ -114,7 +104,6 @@ type.defineHooks
     return if not source
     style = []
     @styles.icon and style.push @styles.icon()
-    @centerIcon and style.push @styles.centered()
     return ImageView { source, style }
 
   __renderText: ->

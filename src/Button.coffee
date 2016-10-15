@@ -85,7 +85,6 @@ type.defineStyles
 
   container:
     flexDirection: "row"
-    alignItems: "center"
 
   icon: null
 

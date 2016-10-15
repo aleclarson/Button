@@ -91,10 +91,14 @@ type.defineStyles
 
   text: null
 
+type.defineProps
+  hitSlop: Object
+
 type.render ->
   return View
     style: @styles.container()
     children: @__renderChildren()
+    hitSlop: @props.hitSlop
     mixins: [ @_touchHandlers ]
 
 type.defineHooks

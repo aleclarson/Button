@@ -1,7 +1,7 @@
 
 {View, ImageView} = require "modx/views"
 {NativeValue} = require "modx/native"
-{Type} = require "modx"
+{Type, Style} = require "modx"
 
 ReactiveTextView = require "ReactiveTextView"
 Holdable = require "holdable"
@@ -56,8 +56,7 @@ type.defineGetters
     @_tap.didTap.listenable
 
   didHold: ->
-    return if @_hold
-    @_hold.didHold.listenable
+    if @_hold then @_hold.didHold.listenable
 
   didReject: ->
     @_tap.didReject.listenable
@@ -91,11 +90,12 @@ type.defineStyles
   text: null
 
 type.defineProps
+  style: Style
   hitSlop: Object
 
 type.render ->
   return View
-    style: @styles.container()
+    style: [ @styles.container(), @props.style ]
     children: @__renderChildren()
     hitSlop: @props.hitSlop
     mixins: [ @_touchHandlers ]

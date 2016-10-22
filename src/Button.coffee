@@ -1,121 +1,161 @@
 
+{Type, Component, Style} = require "modx"
 {View, ImageView} = require "modx/views"
-{NativeValue} = require "modx/native"
-{Type, Style} = require "modx"
 
 ReactiveTextView = require "ReactiveTextView"
 Holdable = require "holdable"
 Tappable = require "tappable"
 Gesture = require "gesture"
 
-type = Type "Button"
+ButtonMixin = require "./ButtonMixin"
 
-type.defineOptions
-  icon: Object
-  text: String
-  getText: Function
-  maxTapCount: Number.withDefault 1
-  minHoldTime: Number
-  preventDistance: Number
+Button = do ->
 
-type.defineValues (options) ->
+  type = Type "Button"
 
-  icon: options.icon
+  type.addMixin ButtonMixin
 
-type.defineValues
+  type.defineOptions
+    icon: Object
+    text: String.or Function
+    maxTapCount: Number.withDefault 1
+    minHoldTime: Number
+    preventDistance: Number
 
-  _text: (options) ->
-    value = options.getText or options.text
-    return if value is undefined
-    value = NativeValue value
-    return value.__attach()
+  type.defineValues
 
-  _tap: (options) ->
-    return Tappable
-      maxTapCount: options.maxTapCount
-      preventDistance: options.preventDistance
+    _icon: (options) ->
+      return options.icon
 
-  _hold: (options) ->
-    return if not options.minHoldTime?
-    return Holdable
-      minHoldTime: options.minHoldTime
-      preventDistance: options.preventDistance
+    _text: (options) ->
+      return options.text
 
-  _touchHandlers: ->
-    return @_tap.touchHandlers if not @_hold
-    responder = Gesture.ResponderList [ @_tap, @_hold ]
-    return responder.touchHandlers
+    _tap: (options) ->
+      return Tappable
+        maxTapCount: options.maxTapCount
+        preventDistance: options.preventDistance
 
-#
-# Prototype
-#
+    _hold: (options) ->
+      return if options.minHoldTime is undefined
+      return Holdable
+        minHoldTime: options.minHoldTime
+        preventDistance: options.preventDistance
 
-type.defineGetters
+  type.defineStyles
 
-  didTap: ->
-    @_tap.didTap.listenable
+    icon: null
 
-  didHold: ->
-    if @_hold then @_hold.didHold.listenable
+    text: null
 
-  didReject: ->
-    @_tap.didReject.listenable
+  type.defineMethods
 
-  didGrant: ->
-    @_tap.didGrant.listenable
+    __renderIcon: ->
+      return null if not @_icon
+      return ImageView
+        source: @_icon
+        style: @styles.icon()
 
-  didEnd: ->
-    @_tap.didEnd.listenable
+    __renderText: ->
+      return null if not @_text
+      if @_text.constructor is String
+      then TextView
+        style: @styles.text()
+        children: @_text
+      else ReactiveTextView
+        style: @styles.text()
+        getText: @_text
 
-  didTouchStart: ->
-    @_tap.didTouchStart.listenable
+  type.defineGetters
 
-  didTouchMove: ->
-    @_tap.didTouchMove.listenable
+    didTap: ->
+      @_tap.didTap.listenable
 
-  didTouchEnd: ->
-    @_tap.didTouchEnd.listenable
+    didHoldStart: ->
+      if @_hold then @_hold.didHoldStart.listenable
 
-#
-# Rendering
-#
+    didHoldEnd: ->
+      if @_hold then @_hold.didHoldEnd.listenable
 
-type.defineStyles
+    didReject: ->
+      @_tap.didReject.listenable
 
-  container:
-    flexDirection: "row"
+    didGrant: ->
+      @_tap.didGrant.listenable
 
-  icon: null
+    didEnd: ->
+      @_tap.didEnd.listenable
 
-  text: null
+    didTouchStart: ->
+      @_tap.didTouchStart.listenable
 
-type.defineProps
-  style: Style
-  hitSlop: Object
+    didTouchMove: ->
+      @_tap.didTouchMove.listenable
 
-type.render ->
-  return View
-    style: [ @styles.container(), @props.style ]
-    children: @__renderChildren()
-    hitSlop: @props.hitSlop
-    mixins: [ @_touchHandlers ]
+    didTouchEnd: ->
+      @_tap.didTouchEnd.listenable
 
-type.defineHooks
+  return type.build()
 
-  __renderIcon: ->
-    return no if not source = @icon
-    @styles.icon and style = @styles.icon()
-    return ImageView {source, style}
+Button.Component = do ->
 
-  __renderText: ->
-    return no if not text = @_text
-    return ReactiveTextView
-      getText: -> text.value
-      style: @styles.text()
+  type = Component "Button"
 
-  __renderChildren: -> [
-    @__renderIcon()
-    @__renderText()
-  ]
+  type.addMixin ButtonMixin
 
-module.exports = type.build()
+  type.defineProps
+    icon: Object
+    iconStyle: Style
+    text: String.or Function
+    textStyle: Style
+    maxTapCount: Number.withDefault 1
+    minHoldTime: Number
+    preventDistance: Number
+    onTap: Function
+    onHoldStart: Function
+    onHoldEnd: Function
+    onReject: Function
+    onGrant: Function
+    onEnd: Function
+    onTouchStart: Function
+    onTouchMove: Function
+    onTouchEnd: Function
+
+  type.defineValues
+
+    _tap: ->
+      return Tappable
+        maxTapCount: @props.maxTapCount
+        preventDistance: @props.preventDistance
+
+    _hold: ->
+      return if @props.minHoldTime is undefined
+      return Holdable
+        minHoldTime: @props.minHoldTime
+        preventDistance: @props.preventDistance
+
+  type.defineMountedListeners ->
+    @props.onReject and @_tap.didReject @props.onReject
+    @props.onGrant and @_tap.didGrant @props.onGrant
+    @props.onEnd and @_tap.didEnd @props.onEnd
+    @props.onTap and @_tap.didTap @props.onTap
+    if @_hold
+      @props.onHoldStart and @_hold.didHoldStart @props.onHoldStart
+      @props.onHoldEnd and @_hold.didHoldEnd @props.onHoldEnd
+    return
+
+  type.defineMethods
+
+    __renderIcon: ->
+      return ImageView
+        style: @props.iconStyle
+        source: @props.icon
+
+    __renderText: ->
+      {text, textStyle} = @props
+      if text.constructor is String
+      then TextView {style: textStyle, children: text}
+      else ReactiveTextView {style: textStyle, getText: text}
+
+  return type.build()
+
+module.exports = Button

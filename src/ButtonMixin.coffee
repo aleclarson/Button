@@ -16,6 +16,7 @@ module.exports = (type) ->
   type.render mixin.render
   type.defineProps mixin.props
   type.defineMethods mixin.methods
+  type.defineStyles mixin.styles
 
 mixin = {}
 
@@ -34,7 +35,7 @@ mixin.render = ->
       @props.style
     ]
 
-mixin.methods = ->
+mixin.methods =
 
   __renderChildren: -> [
     @__renderIcon()

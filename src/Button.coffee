@@ -11,6 +11,68 @@ ButtonMixin = require "./ButtonMixin"
 
 Button = do ->
 
+  type = Component "Button"
+
+  type.addMixin ButtonMixin
+
+  type.defineProps
+    icon: Object
+    iconStyle: Style
+    text: String.or Function
+    textStyle: Style
+    maxTapCount: Number.withDefault 1
+    minHoldTime: Number
+    preventDistance: Number
+    onTap: Function
+    onHoldStart: Function
+    onHoldEnd: Function
+    onReject: Function
+    onGrant: Function
+    onEnd: Function
+    onTouchStart: Function
+    onTouchMove: Function
+    onTouchEnd: Function
+
+  type.defineValues
+
+    _tap: ->
+      return Tappable
+        maxTapCount: @props.maxTapCount
+        preventDistance: @props.preventDistance
+
+    _hold: ->
+      return if @props.minHoldTime is undefined
+      return Holdable
+        minHoldTime: @props.minHoldTime
+        preventDistance: @props.preventDistance
+
+  type.defineMountedListeners ->
+    @props.onReject and @_tap.didReject @props.onReject
+    @props.onGrant and @_tap.didGrant @props.onGrant
+    @props.onEnd and @_tap.didEnd @props.onEnd
+    @props.onTap and @_tap.didTap @props.onTap
+    if @_hold
+      @props.onHoldStart and @_hold.didHoldStart @props.onHoldStart
+      @props.onHoldEnd and @_hold.didHoldEnd @props.onHoldEnd
+    return
+
+  type.defineMethods
+
+    __renderIcon: ->
+      return ImageView
+        style: @props.iconStyle
+        source: @props.icon
+
+    __renderText: ->
+      {text, textStyle} = @props
+      if text.constructor is String
+      then TextView {style: textStyle, children: text}
+      else ReactiveTextView {style: textStyle, getText: text}
+
+  return type.build()
+
+Button.Type = do ->
+
   type = Type "Button"
 
   type.addMixin ButtonMixin
@@ -93,68 +155,6 @@ Button = do ->
 
     didTouchEnd: ->
       @_tap.didTouchEnd.listenable
-
-  return type.build()
-
-Button.Component = do ->
-
-  type = Component "Button"
-
-  type.addMixin ButtonMixin
-
-  type.defineProps
-    icon: Object
-    iconStyle: Style
-    text: String.or Function
-    textStyle: Style
-    maxTapCount: Number.withDefault 1
-    minHoldTime: Number
-    preventDistance: Number
-    onTap: Function
-    onHoldStart: Function
-    onHoldEnd: Function
-    onReject: Function
-    onGrant: Function
-    onEnd: Function
-    onTouchStart: Function
-    onTouchMove: Function
-    onTouchEnd: Function
-
-  type.defineValues
-
-    _tap: ->
-      return Tappable
-        maxTapCount: @props.maxTapCount
-        preventDistance: @props.preventDistance
-
-    _hold: ->
-      return if @props.minHoldTime is undefined
-      return Holdable
-        minHoldTime: @props.minHoldTime
-        preventDistance: @props.preventDistance
-
-  type.defineMountedListeners ->
-    @props.onReject and @_tap.didReject @props.onReject
-    @props.onGrant and @_tap.didGrant @props.onGrant
-    @props.onEnd and @_tap.didEnd @props.onEnd
-    @props.onTap and @_tap.didTap @props.onTap
-    if @_hold
-      @props.onHoldStart and @_hold.didHoldStart @props.onHoldStart
-      @props.onHoldEnd and @_hold.didHoldEnd @props.onHoldEnd
-    return
-
-  type.defineMethods
-
-    __renderIcon: ->
-      return ImageView
-        style: @props.iconStyle
-        source: @props.icon
-
-    __renderText: ->
-      {text, textStyle} = @props
-      if text.constructor is String
-      then TextView {style: textStyle, children: text}
-      else ReactiveTextView {style: textStyle, getText: text}
 
   return type.build()
 

@@ -1,11 +1,10 @@
 
+{View, TextView, ImageView} = require "modx/views"
 {Type, Component, Style} = require "modx"
-{View, ImageView} = require "modx/views"
 
 ReactiveTextView = require "ReactiveTextView"
 Holdable = require "holdable"
 Tappable = require "tappable"
-Gesture = require "gesture"
 
 ButtonMixin = require "./ButtonMixin"
 
@@ -36,38 +35,40 @@ Button = do ->
   type.defineValues
 
     _tap: ->
-      return Tappable
-        maxTapCount: @props.maxTapCount
-        preventDistance: @props.preventDistance
+      {maxTapCount, preventDistance} = @props
+      return Tappable {maxTapCount, preventDistance}
 
     _hold: ->
-      return if @props.minHoldTime is undefined
-      return Holdable
-        minHoldTime: @props.minHoldTime
-        preventDistance: @props.preventDistance
+      {minHoldTime, preventDistance} = @props
+      return if minHoldTime is undefined
+      return Holdable {minHoldTime, preventDistance}
 
-  type.defineMountedListeners ->
-    @props.onReject and @_tap.didReject @props.onReject
-    @props.onGrant and @_tap.didGrant @props.onGrant
-    @props.onEnd and @_tap.didEnd @props.onEnd
-    @props.onTap and @_tap.didTap @props.onTap
+  type.defineListeners ->
+    {props} = this
+    props.onReject and @_tap.didReject props.onReject
+    props.onGrant and @_tap.didGrant props.onGrant
+    props.onEnd and @_tap.didEnd props.onEnd
+    props.onTap and @_tap.didTap props.onTap
     if @_hold
-      @props.onHoldStart and @_hold.didHoldStart @props.onHoldStart
-      @props.onHoldEnd and @_hold.didHoldEnd @props.onHoldEnd
+      props.onHoldStart and @_hold.didHoldStart props.onHoldStart
+      props.onHoldEnd and @_hold.didHoldEnd props.onHoldEnd
     return
 
   type.defineMethods
 
     __renderIcon: ->
-      return ImageView
-        style: @props.iconStyle
-        source: @props.icon
+      {icon, iconStyle} = @props
+      if icon
+      then ImageView {style: iconStyle, source: icon}
+      else null
 
     __renderText: ->
       {text, textStyle} = @props
-      if text.constructor is String
-      then TextView {style: textStyle, children: text}
-      else ReactiveTextView {style: textStyle, getText: text}
+      if text
+        if text.constructor is String
+        then TextView {style: textStyle, children: text}
+        else ReactiveTextView {style: textStyle, text}
+      else null
 
   return type.build()
 

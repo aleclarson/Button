@@ -2,7 +2,6 @@
 {View, TextView, ImageView} = require "modx/views"
 {Type, Component, Style} = require "modx"
 
-ReactiveTextView = require "ReactiveTextView"
 Holdable = require "holdable"
 Tappable = require "tappable"
 
@@ -17,7 +16,7 @@ Button = do ->
   type.defineProps
     icon: Object
     iconStyle: Style
-    text: String.or Function
+    text: String
     textStyle: Style
     maxTapCount: Number.withDefault 1
     minHoldTime: Number
@@ -65,9 +64,7 @@ Button = do ->
     __renderText: ->
       {text, textStyle} = @props
       if text
-        if text.constructor is String
-        then TextView {style: textStyle, children: text}
-        else ReactiveTextView {style: textStyle, text}
+      then TextView {style: textStyle, text}
       else null
 
   return type.build()
@@ -80,7 +77,7 @@ Button.Type = do ->
 
   type.defineOptions
     icon: Object
-    text: String.or Function
+    text: String
     maxTapCount: Number.withDefault 1
     minHoldTime: Number
     preventDistance: Number
@@ -113,20 +110,14 @@ Button.Type = do ->
   type.defineMethods
 
     __renderIcon: ->
-      return null if not @_icon
-      return ImageView
-        source: @_icon
-        style: @styles.icon()
+      if @_icon
+      then ImageView source: @_icon, style: @styles.icon()
+      else null
 
     __renderText: ->
-      return null if not @_text
-      if @_text.constructor is String
-      then TextView
-        style: @styles.text()
-        children: @_text
-      else ReactiveTextView
-        style: @styles.text()
-        getText: @_text
+      if @_text
+      then TextView text: @_text, style: @styles.text()
+      else null
 
   type.defineGetters
 

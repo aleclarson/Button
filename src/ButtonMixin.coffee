@@ -1,8 +1,6 @@
 
-{View, ImageView, TextView} = require "modx/views"
 {Style} = require "modx"
-
-ReactiveTextView = require "ReactiveTextView"
+{View} = require "modx/views"
 
 # Each instance must have these properties...
 #   _tap: Tappable

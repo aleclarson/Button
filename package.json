@@ -10,7 +10,6 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
-    "ReactiveTextView": "aleclarson/ReactiveTextView#1.0.0",
     "holdable": "aleclarson/holdable#1.0.0",
     "modx": "aleclarson/modx#1.0.0",
     "tappable": "aleclarson/tappable#1.0.0"

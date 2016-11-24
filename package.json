@@ -10,8 +10,8 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
-    "holdable": "aleclarson/holdable#1.0.0",
-    "modx": "aleclarson/modx#1.0.0",
-    "tappable": "aleclarson/tappable#1.0.0"
+    "holdable": "aleclarson/holdable#1.1.0",
+    "modx": "aleclarson/modx#2.0.1",
+    "tappable": "aleclarson/tappable#1.1.0"
   }
 }

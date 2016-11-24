@@ -1,112 +1,153 @@
 
-{ Component, NativeValue, View, ImageView } = require "component"
+{View, TextView, ImageView} = require "modx/views"
+{Type, Component, Style} = require "modx"
 
-ReactiveTextView = require "ReactiveTextView"
-getArgProp = require "getArgProp"
 Holdable = require "holdable"
 Tappable = require "tappable"
-Gesture = require "gesture"
 
-type = Component.Type "Button"
+ButtonMixin = require "./ButtonMixin"
 
-type.optionTypes =
-  icon: Number.Maybe
-  text: String.Maybe
-  getText: Function.Maybe
-  maxTapCount: Number.Maybe
-  minHoldTime: Number.Maybe
-  preventDistance: Number.Maybe
+Button = do ->
 
-type.optionDefaults =
-  maxTapCount: 1
+  type = Component "Button"
 
-type.defineValues
+  type.addMixin ButtonMixin
 
-  _icon: getArgProp "icon"
+  type.defineProps
+    icon: Object
+    iconStyle: Style
+    text: String
+    textStyle: Style
+    maxTapCount: Number.withDefault 1
+    minHoldTime: Number
+    preventDistance: Number
+    onTap: Function
+    onHoldStart: Function
+    onHoldEnd: Function
+    onReject: Function
+    onGrant: Function
+    onEnd: Function
+    onTouchStart: Function
+    onTouchMove: Function
+    onTouchEnd: Function
 
-  _text: (options) ->
-    value = options.getText or options.text
-    return if value is undefined
-    return NativeValue value
+  type.defineValues
 
-  _tap: (options) ->
-    return Tappable
-      maxTapCount: options.maxTapCount
-      preventDistance: options.preventDistance
+    _tap: ->
+      {maxTapCount, preventDistance} = @props
+      return Tappable {maxTapCount, preventDistance}
 
-  _hold: (options) ->
-    return if not options.minHoldTime?
-    return Holdable
-      minHoldTime: options.minHoldTime
-      preventDistance: options.preventDistance
+    _hold: ->
+      {minHoldTime, preventDistance} = @props
+      return if minHoldTime is undefined
+      return Holdable {minHoldTime, preventDistance}
 
-  _gestures: ->
-    return @_tap if not @_hold
-    Gesture.ResponderList [ @_tap, @_hold ]
+  type.defineListeners ->
+    {props} = this
+    props.onReject and @_tap.didReject props.onReject
+    props.onGrant and @_tap.didGrant props.onGrant
+    props.onEnd and @_tap.didEnd props.onEnd
+    props.onTap and @_tap.didTap props.onTap
+    if @_hold
+      props.onHoldStart and @_hold.didHoldStart props.onHoldStart
+      props.onHoldEnd and @_hold.didHoldEnd props.onHoldEnd
+    return
 
-type.definePrototype
+  type.defineMethods
 
-  didTap: get: ->
-    @_tap.didTap.listenable
+    __renderIcon: ->
+      {icon, iconStyle} = @props
+      if icon
+      then ImageView {style: iconStyle, source: icon}
+      else null
 
-  didHold: get: ->
-    return if not @_hold
-    @_hold.didHold.listenable
+    __renderText: ->
+      {text, textStyle} = @props
+      if text
+      then TextView {style: textStyle, text}
+      else null
 
-  didReject: get: ->
-    @_tap.didReject.listenable
+  return type.build()
 
-  didGrant: get: ->
-    @_tap.didGrant.listenable
+Button.Type = do ->
 
-  didEnd: get: ->
-    @_tap.didEnd.listenable
+  type = Type "Button"
 
-  didTouchStart: get: ->
-    @_tap.didTouchStart.listenable
+  type.addMixin ButtonMixin
 
-  didTouchMove: get: ->
-    @_tap.didTouchMove.listenable
+  type.defineOptions
+    icon: Object
+    text: String
+    maxTapCount: Number.withDefault 1
+    minHoldTime: Number
+    preventDistance: Number
 
-  didTouchEnd: get: ->
-    @_tap.didTouchEnd.listenable
+  type.defineValues
 
-type.defineMethods
+    _icon: (options) ->
+      return options.icon
 
-  __renderIcon: ->
-    return if not @_icon
-    return ImageView
-      source: @_icon
-      style: @styles.icon()
+    _text: (options) ->
+      return options.text
 
-  __renderText: ->
-    return if not @_text
-    return ReactiveTextView
-      getText: @_text.getValue
-      style: @styles.text()
+    _tap: (options) ->
+      return Tappable
+        maxTapCount: options.maxTapCount
+        preventDistance: options.preventDistance
 
-  __renderChildren: -> [
-    @__renderIcon()
-    @__renderText()
-  ]
+    _hold: (options) ->
+      return if options.minHoldTime is undefined
+      return Holdable
+        minHoldTime: options.minHoldTime
+        preventDistance: options.preventDistance
 
-type.render ->
-  return View
-    style: @styles.container()
-    children: @__renderChildren()
-    mixins: [
-      @_gestures.touchHandlers
-    ]
+  type.defineStyles
 
-type.defineStyles
+    icon: null
 
-  container: {
-    flexDirection: "row"
-    alignItems: "center"
-  }
+    text: null
 
-  icon: null
+  type.defineMethods
 
-  text: null
+    __renderIcon: ->
+      if @_icon
+      then ImageView source: @_icon, style: @styles.icon()
+      else null
 
-module.exports = type.build()
+    __renderText: ->
+      if @_text
+      then TextView text: @_text, style: @styles.text()
+      else null
+
+  type.defineGetters
+
+    didTap: ->
+      @_tap.didTap.listenable
+
+    didHoldStart: ->
+      if @_hold then @_hold.didHoldStart.listenable
+
+    didHoldEnd: ->
+      if @_hold then @_hold.didHoldEnd.listenable
+
+    didReject: ->
+      @_tap.didReject.listenable
+
+    didGrant: ->
+      @_tap.didGrant.listenable
+
+    didEnd: ->
+      @_tap.didEnd.listenable
+
+    didTouchStart: ->
+      @_tap.didTouchStart.listenable
+
+    didTouchMove: ->
+      @_tap.didTouchMove.listenable
+
+    didTouchEnd: ->
+      @_tap.didTouchEnd.listenable
+
+  return type.build()
+
+module.exports = Button

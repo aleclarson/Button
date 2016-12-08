@@ -2,8 +2,8 @@
 {View, TextView, ImageView} = require "modx/views"
 {Type, Component, Style} = require "modx"
 
-Holdable = require "holdable"
-Tappable = require "tappable"
+HoldResponder = require "HoldResponder"
+TapResponder = require "TapResponder"
 
 ButtonMixin = require "./ButtonMixin"
 
@@ -35,12 +35,12 @@ Button = do ->
 
     _tap: ->
       {maxTapCount, preventDistance} = @props
-      return Tappable {maxTapCount, preventDistance}
+      return TapResponder {maxTapCount, preventDistance}
 
     _hold: ->
       {minHoldTime, preventDistance} = @props
       return if minHoldTime is undefined
-      return Holdable {minHoldTime, preventDistance}
+      return HoldResponder {minHoldTime, preventDistance}
 
   type.defineListeners ->
     {props} = this
@@ -91,13 +91,13 @@ Button.Type = do ->
       return options.text
 
     _tap: (options) ->
-      return Tappable
+      return TapResponder
         maxTapCount: options.maxTapCount
         preventDistance: options.preventDistance
 
     _hold: (options) ->
       return if options.minHoldTime is undefined
-      return Holdable
+      return HoldResponder
         minHoldTime: options.minHoldTime
         preventDistance: options.preventDistance
 

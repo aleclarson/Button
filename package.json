@@ -1,6 +1,6 @@
 {
   "name": "Button",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "main": "js/Button",
   "plugins": [
     "lotus-coffee"
@@ -12,6 +12,7 @@
   "dependencies": {
     "HoldResponder": "aleclarson/HoldResponder#1.2.0",
     "TapResponder": "aleclarson/TapResponder#1.2.0",
-    "modx": "aleclarson/modx#2.0.1"
+    "modx": "aleclarson/modx#2.1.0",
+    "react-validators": "aleclarson/react-validators#1.0.1"
   }
 }

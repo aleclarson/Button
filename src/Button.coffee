@@ -1,15 +1,19 @@
 
-{View, TextView, ImageView} = require "modx/views"
-{Type, Component, Style} = require "modx"
+{Style} = require "react-validators"
 
+ReactComponent = require "modx/lib/Component"
 HoldResponder = require "HoldResponder"
 TapResponder = require "TapResponder"
+ReactType = require "modx/lib/Type"
+ImageView = require "modx/lib/ImageView"
+TextView = require "modx/lib/TextView"
+View = require "modx/lib/View"
 
 ButtonMixin = require "./ButtonMixin"
 
 Button = do ->
 
-  type = Component "Button"
+  type = ReactComponent "Button"
 
   type.addMixin ButtonMixin
 
@@ -71,7 +75,7 @@ Button = do ->
 
 Button.Type = do ->
 
-  type = Type "Button"
+  type = ReactType "Button"
 
   type.addMixin ButtonMixin
 

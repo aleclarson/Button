@@ -1,6 +1,7 @@
 
-{Style} = require "modx"
-{View} = require "modx/views"
+{Style} = require "react-validators"
+
+View = require "modx/lib/View"
 
 # Each instance must have these properties...
 #   _tap: Tappable

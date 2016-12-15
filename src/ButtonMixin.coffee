@@ -1,5 +1,5 @@
 
-{Style} = require "react-validators"
+{Style, Children} = require "react-validators"
 
 View = require "modx/lib/View"
 
@@ -15,13 +15,13 @@ module.exports = (type) ->
   type.render mixin.render
   type.defineProps mixin.props
   type.defineMethods mixin.methods
-  type.defineStyles mixin.styles
 
 mixin = {}
 
 mixin.props =
   style: Style
   hitSlop: Object
+  children: Children
 
 mixin.render = ->
   {touchHandlers} = @_tap.join @_hold
@@ -30,17 +30,14 @@ mixin.render = ->
     hitSlop: @props.hitSlop
     mixins: [touchHandlers]
     style: [
-      @styles.container()
+      flexDirection: "row"
       @props.style
     ]
 
 mixin.methods =
 
-  __renderChildren: -> [
-    @__renderIcon()
-    @__renderText()
-  ]
-
-mixin.styles =
-
-  container: {flexDirection: "row"}
+  __renderChildren: ->
+    @props.children or [
+      @__renderIcon()
+      @__renderText()
+    ]

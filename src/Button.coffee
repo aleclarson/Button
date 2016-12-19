@@ -4,6 +4,7 @@
 ReactComponent = require "modx/lib/Component"
 HoldResponder = require "HoldResponder"
 TapResponder = require "TapResponder"
+parseOptions = require "parseOptions"
 ReactType = require "modx/lib/Type"
 ImageView = require "modx/lib/ImageView"
 TextView = require "modx/lib/TextView"
@@ -22,9 +23,6 @@ Button = do ->
     iconStyle: Style
     text: String
     textStyle: Style
-    maxTapCount: Number.withDefault 1
-    minHoldTime: Number
-    preventDistance: Number
     onTap: Function
     onHoldStart: Function
     onHoldEnd: Function
@@ -38,13 +36,13 @@ Button = do ->
   type.defineValues
 
     _tap: ->
-      {maxTapCount, preventDistance} = @props
-      return TapResponder {maxTapCount, preventDistance}
+      options = parseOptions TapResponder, @props
+      return TapResponder options
 
     _hold: ->
-      {minHoldTime, preventDistance} = @props
-      return if minHoldTime is undefined
-      return HoldResponder {minHoldTime, preventDistance}
+      return if @props.minHoldTime is undefined
+      options = parseOptions HoldResponder, @props
+      return HoldResponder options
 
   type.defineListeners ->
     {props} = this
@@ -95,15 +93,13 @@ Button.Type = do ->
       return options.text
 
     _tap: (options) ->
-      return TapResponder
-        maxTapCount: options.maxTapCount
-        preventDistance: options.preventDistance
+      tapOptions = parseOptions TapResponder, options
+      return TapResponder tapOptions
 
     _hold: (options) ->
       return if options.minHoldTime is undefined
-      return HoldResponder
-        minHoldTime: options.minHoldTime
-        preventDistance: options.preventDistance
+      holdOptions = parseOptions HoldResponder, options
+      return HoldResponder holdOptions
 
   type.defineStyles
 

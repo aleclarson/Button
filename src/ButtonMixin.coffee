@@ -1,6 +1,5 @@
 
-{Style, Children} = require "react-validators"
-
+parseOptions = require "parseOptions"
 View = require "modx/lib/View"
 
 # Each instance must have these properties...
@@ -18,17 +17,13 @@ module.exports = (type) ->
 
 mixin = {}
 
-mixin.props =
-  style: Style
-  hitSlop: Object
-  children: Children
-
 mixin.render = ->
   {touchHandlers} = @_tap.join @_hold
+  viewProps = parseOptions View, @props, {key: "propTypes"}
   return View
     children: @__renderChildren()
     hitSlop: @props.hitSlop
-    mixins: [touchHandlers]
+    mixins: [viewProps, touchHandlers]
     style: [
       flexDirection: "row"
       @props.style

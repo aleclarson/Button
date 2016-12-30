@@ -12,7 +12,6 @@ View = require "modx/lib/View"
 
 module.exports = (type) ->
   type.render mixin.render
-  type.defineProps mixin.props
   type.defineMethods mixin.methods
 
 mixin = {}

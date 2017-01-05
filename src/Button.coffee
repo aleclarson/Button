@@ -31,7 +31,7 @@ Button = do ->
     onHoldEnd: Function
     onReject: Function
     onGrant: Function
-    onEnd: Function
+    onRelease: Function
     onTouchStart: Function
     onTouchMove: Function
     onTouchEnd: Function
@@ -51,7 +51,7 @@ Button = do ->
     {props} = this
     props.onReject and @_tap.didReject props.onReject
     props.onGrant and @_tap.didGrant props.onGrant
-    props.onEnd and @_tap.didEnd props.onEnd
+    props.onRelease and @_tap.didRelease props.onRelease
     props.onTap and @_tap.didTap props.onTap
     if @_hold
       props.onHoldStart and @_hold.didHoldStart props.onHoldStart

@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "HoldResponder": "aleclarson/HoldResponder#1.2.1",
-    "TapResponder": "aleclarson/TapResponder#1.2.1",
+    "TapResponder": "aleclarson/TapResponder#1.2.2",
     "gesture": "aleclarson/gesture#2.3.0",
     "modx": "aleclarson/modx#2.4.0",
     "parseOptions": "aleclarson/parseOptions#1.0.0",

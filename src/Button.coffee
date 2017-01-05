@@ -1,4 +1,5 @@
 
+{Responder} = require "gesture"
 {Style} = require "react-validators"
 
 HoldResponder = require "HoldResponder"
@@ -16,6 +17,9 @@ Button = do ->
   type = modx.Component "Button"
 
   type.addMixin ButtonMixin
+
+  type.inheritProps View,
+    exclude: Responder.eventNames
 
   type.defineProps
     icon: Object

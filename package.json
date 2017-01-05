@@ -12,7 +12,7 @@
   "dependencies": {
     "HoldResponder": "aleclarson/HoldResponder#1.2.1",
     "TapResponder": "aleclarson/TapResponder#1.2.1",
-    "modx": "aleclarson/modx#2.3.0",
+    "modx": "aleclarson/modx#2.4.0",
     "parseOptions": "aleclarson/parseOptions#1.0.0",
     "react-validators": "aleclarson/react-validators#1.0.1"
   }

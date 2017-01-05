@@ -1,5 +1,4 @@
 
-parseOptions = require "parseOptions"
 View = require "modx/lib/View"
 
 # Each instance must have these properties...
@@ -18,10 +17,9 @@ mixin = {}
 
 mixin.render = ->
   {touchHandlers} = @_tap.join @_hold
-  viewProps = parseOptions View, @props, {key: "propTypes"}
+  viewProps = View.parseProps @props
   return View
     children: @__renderChildren()
-    hitSlop: @props.hitSlop
     mixins: [viewProps, touchHandlers]
     style: [
       flexDirection: "row"

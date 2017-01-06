@@ -10,7 +10,6 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
-    "HoldResponder": "aleclarson/HoldResponder#1.2.1",
     "TapResponder": "aleclarson/TapResponder#1.2.2",
     "gesture": "aleclarson/gesture#2.3.0",
     "mergeDefaults": "aleclarson/mergeDefaults#1.0.1",

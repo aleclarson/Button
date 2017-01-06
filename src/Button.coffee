@@ -3,7 +3,6 @@
 {Style} = require "react-validators"
 
 mergeDefaults = require "mergeDefaults"
-HoldResponder = require "HoldResponder"
 TapResponder = require "TapResponder"
 parseOptions = require "parseOptions"
 ImageView = require "modx/lib/ImageView"
@@ -28,8 +27,6 @@ Button = do ->
     text: String
     textStyle: Style
     onTap: Function
-    onHoldStart: Function
-    onHoldEnd: Function
     onReject: Function
     onGrant: Function
     onRelease: Function
@@ -49,20 +46,12 @@ Button = do ->
       options = parseOptions TapResponder, @props
       return TapResponder options
 
-    _hold: ->
-      return if @props.minHoldTime is undefined
-      options = parseOptions HoldResponder, @props
-      return HoldResponder options
-
   type.defineListeners ->
     {props} = this
     props.onReject and @_tap.didReject props.onReject
     props.onGrant and @_tap.didGrant props.onGrant
     props.onRelease and @_tap.didRelease props.onRelease
     props.onTap and @_tap.didTap props.onTap
-    if @_hold
-      props.onHoldStart and @_hold.didHoldStart props.onHoldStart
-      props.onHoldEnd and @_hold.didHoldEnd props.onHoldEnd
     return
 
   type.defineMethods
@@ -91,7 +80,6 @@ Button.Type = do ->
     icon: Object
     text: String
     maxTapCount: Number.withDefault 1
-    minHoldTime: Number
     preventDistance: Number
 
   type.defineValues
@@ -105,11 +93,6 @@ Button.Type = do ->
     _tap: (options) ->
       tapOptions = parseOptions TapResponder, options
       return TapResponder tapOptions
-
-    _hold: (options) ->
-      return if options.minHoldTime is undefined
-      holdOptions = parseOptions HoldResponder, options
-      return HoldResponder holdOptions
 
   type.defineStyles
 
@@ -133,12 +116,6 @@ Button.Type = do ->
 
     didTap: ->
       @_tap.didTap.listenable
-
-    didHoldStart: ->
-      if @_hold then @_hold.didHoldStart.listenable
-
-    didHoldEnd: ->
-      if @_hold then @_hold.didHoldEnd.listenable
 
     didReject: ->
       @_tap.didReject.listenable

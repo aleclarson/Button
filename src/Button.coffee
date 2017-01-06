@@ -1,22 +1,25 @@
 
+{Responder} = require "gesture"
 {Style} = require "react-validators"
 
-ReactComponent = require "modx/lib/Component"
-HoldResponder = require "HoldResponder"
+mergeDefaults = require "mergeDefaults"
 TapResponder = require "TapResponder"
 parseOptions = require "parseOptions"
-ReactType = require "modx/lib/Type"
 ImageView = require "modx/lib/ImageView"
 TextView = require "modx/lib/TextView"
 View = require "modx/lib/View"
+modx = require "modx"
 
 ButtonMixin = require "./ButtonMixin"
 
 Button = do ->
 
-  type = ReactComponent "Button"
+  type = modx.Component "Button"
 
   type.addMixin ButtonMixin
+
+  type.inheritProps View,
+    exclude: Responder.eventNames
 
   type.defineProps
     icon: Object
@@ -24,14 +27,18 @@ Button = do ->
     text: String
     textStyle: Style
     onTap: Function
-    onHoldStart: Function
-    onHoldEnd: Function
     onReject: Function
     onGrant: Function
-    onEnd: Function
+    onRelease: Function
     onTouchStart: Function
     onTouchMove: Function
     onTouchEnd: Function
+
+  type.defineProps do ->
+    propTypes = {}
+    [TapResponder, Responder].forEach (type) ->
+      mergeDefaults propTypes, type.optionTypes
+    return propTypes
 
   type.defineValues
 
@@ -39,20 +46,30 @@ Button = do ->
       options = parseOptions TapResponder, @props
       return TapResponder options
 
-    _hold: ->
-      return if @props.minHoldTime is undefined
-      options = parseOptions HoldResponder, @props
-      return HoldResponder options
-
   type.defineListeners ->
     {props} = this
-    props.onReject and @_tap.didReject props.onReject
-    props.onGrant and @_tap.didGrant props.onGrant
-    props.onEnd and @_tap.didEnd props.onEnd
-    props.onTap and @_tap.didTap props.onTap
-    if @_hold
-      props.onHoldStart and @_hold.didHoldStart props.onHoldStart
-      props.onHoldEnd and @_hold.didHoldEnd props.onHoldEnd
+
+    if props.onReject
+      @_tap.didReject props.onReject
+
+    if props.onGrant
+      @_tap.didGrant props.onGrant
+
+    if props.onRelease
+      @_tap.didRelease props.onRelease
+
+    if props.onTap
+      @_tap.didTap props.onTap
+
+    if props.onTouchStart
+      @_tap.didTouchStart props.onTouchStart
+
+    if props.onTouchMove
+      @_tap.didTouchMove props.onTouchMove
+
+    if props.onTouchEnd
+      @_tap.didTouchEnd props.onTouchEnd
+
     return
 
   type.defineMethods
@@ -73,7 +90,7 @@ Button = do ->
 
 Button.Type = do ->
 
-  type = ReactType "Button"
+  type = modx.Type "Button"
 
   type.addMixin ButtonMixin
 
@@ -81,7 +98,6 @@ Button.Type = do ->
     icon: Object
     text: String
     maxTapCount: Number.withDefault 1
-    minHoldTime: Number
     preventDistance: Number
 
   type.defineValues
@@ -95,11 +111,6 @@ Button.Type = do ->
     _tap: (options) ->
       tapOptions = parseOptions TapResponder, options
       return TapResponder tapOptions
-
-    _hold: (options) ->
-      return if options.minHoldTime is undefined
-      holdOptions = parseOptions HoldResponder, options
-      return HoldResponder holdOptions
 
   type.defineStyles
 
@@ -123,12 +134,6 @@ Button.Type = do ->
 
     didTap: ->
       @_tap.didTap.listenable
-
-    didHoldStart: ->
-      if @_hold then @_hold.didHoldStart.listenable
-
-    didHoldEnd: ->
-      if @_hold then @_hold.didHoldEnd.listenable
 
     didReject: ->
       @_tap.didReject.listenable

@@ -2,6 +2,7 @@
 {Responder} = require "gesture"
 {Style} = require "react-validators"
 
+mergeDefaults = require "mergeDefaults"
 HoldResponder = require "HoldResponder"
 TapResponder = require "TapResponder"
 parseOptions = require "parseOptions"
@@ -35,6 +36,12 @@ Button = do ->
     onTouchStart: Function
     onTouchMove: Function
     onTouchEnd: Function
+
+  type.defineProps do ->
+    propTypes = {}
+    [TapResponder, Responder].forEach (type) ->
+      mergeDefaults propTypes, type.optionTypes
+    return propTypes
 
   type.defineValues
 

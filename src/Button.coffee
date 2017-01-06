@@ -52,6 +52,9 @@ Button = do ->
     props.onGrant and @_tap.didGrant props.onGrant
     props.onRelease and @_tap.didRelease props.onRelease
     props.onTap and @_tap.didTap props.onTap
+    props.onTouchStart and @_tap.didTouchStart props.onTouchStart
+    props.onTouchMove and @_tap.didTouchMove props.onTouchMove
+    props.onTouchEnd and @_tap.didTouchEnd props.onTouchEnd
     return
 
   type.defineMethods

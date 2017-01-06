@@ -10,12 +10,10 @@ View = require "modx/lib/View"
 #   __renderText
 
 module.exports = (type) ->
-  type.render mixin.render
-  type.defineMethods mixin.methods
+  type.render render
+  type.defineMethods methods
 
-mixin = {}
-
-mixin.render = ->
+render = ->
   {touchHandlers} = @_tap.join @_hold
   viewProps = View.parseProps @props
   return View
@@ -26,7 +24,7 @@ mixin.render = ->
       @props.style
     ]
 
-mixin.methods =
+methods =
 
   __renderChildren: ->
     @props.children or [

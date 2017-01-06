@@ -48,13 +48,28 @@ Button = do ->
 
   type.defineListeners ->
     {props} = this
-    props.onReject and @_tap.didReject props.onReject
-    props.onGrant and @_tap.didGrant props.onGrant
-    props.onRelease and @_tap.didRelease props.onRelease
-    props.onTap and @_tap.didTap props.onTap
-    props.onTouchStart and @_tap.didTouchStart props.onTouchStart
-    props.onTouchMove and @_tap.didTouchMove props.onTouchMove
-    props.onTouchEnd and @_tap.didTouchEnd props.onTouchEnd
+
+    if props.onReject
+      @_tap.didReject props.onReject
+
+    if props.onGrant
+      @_tap.didGrant props.onGrant
+
+    if props.onRelease
+      @_tap.didRelease props.onRelease
+
+    if props.onTap
+      @_tap.didTap props.onTap
+
+    if props.onTouchStart
+      @_tap.didTouchStart props.onTouchStart
+
+    if props.onTouchMove
+      @_tap.didTouchMove props.onTouchMove
+
+    if props.onTouchEnd
+      @_tap.didTouchEnd props.onTouchEnd
+
     return
 
   type.defineMethods

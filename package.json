@@ -10,10 +10,10 @@
     "postinstall": "npm run build"
   },
   "dependencies": {
-    "TapResponder": "aleclarson/TapResponder#1.2.2",
-    "gesture": "aleclarson/gesture#2.3.0",
+    "TapResponder": "aleclarson/TapResponder#1.2.3",
+    "gesture": "aleclarson/gesture#2.3.2",
     "mergeDefaults": "aleclarson/mergeDefaults#1.0.1",
-    "modx": "aleclarson/modx#2.4.0",
+    "modx": "aleclarson/modx#2.4.1",
     "parseOptions": "aleclarson/parseOptions#1.0.0",
     "react-validators": "aleclarson/react-validators#1.0.1"
   }

@@ -1,0 +1,13 @@
+{
+  "name": "Button",
+  "version": "3.4.0",
+  "main": "js/Button",
+  "dependencies": {
+    "TapResponder": "aleclarson/TapResponder#1.3.0",
+    "gesture": "aleclarson/gesture#2.4.0",
+    "mergeDefaults": "aleclarson/mergeDefaults#1.0.2",
+    "modx": "aleclarson/modx#2.5.0",
+    "parseOptions": "aleclarson/parseOptions#1.0.0",
+    "react-validators": "aleclarson/react-validators#1.0.1"
+  }
+}

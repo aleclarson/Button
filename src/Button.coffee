@@ -94,11 +94,13 @@ Button.Type = do ->
 
   type.addMixin ButtonMixin
 
-  type.defineOptions
-    icon: Object
-    text: String
-    maxTapCount: Number.withDefault 1
-    preventDistance: Number
+  type.defineArgs ->
+    defaults: {maxTapCount: 1}
+    types:
+      icon: Object
+      text: String
+      maxTapCount: Number
+      preventDistance: Number
 
   type.defineValues
 

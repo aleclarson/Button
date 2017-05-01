@@ -46,31 +46,23 @@ Button = do ->
       options = parseOptions TapResponder, @props
       return TapResponder options
 
-  type.defineListeners ->
-    {props} = this
+  type.defineListeners do ->
 
-    if props.onReject
-      @_tap.didReject props.onReject
+    eventMap =
+      didReject: "onReject"
+      didGrant: "onGrant"
+      didRelease: "onRelease"
+      didTap: "onTap"
+      didTouchStart: "onTouchStart"
+      didTouchMove: "onTouchMove"
+      didTouchEnd: "onTouchEnd"
 
-    if props.onGrant
-      @_tap.didGrant props.onGrant
-
-    if props.onRelease
-      @_tap.didRelease props.onRelease
-
-    if props.onTap
-      @_tap.didTap props.onTap
-
-    if props.onTouchStart
-      @_tap.didTouchStart props.onTouchStart
-
-    if props.onTouchMove
-      @_tap.didTouchMove props.onTouchMove
-
-    if props.onTouchEnd
-      @_tap.didTouchEnd props.onTouchEnd
-
-    return
+    return ->
+      {props, _tap} = this
+      for eventKey, propKey of eventMap
+        if callback = props[propKey]
+          _tap[eventKey] callback
+      return
 
   type.defineMethods
 

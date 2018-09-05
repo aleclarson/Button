@@ -40,11 +40,9 @@ Button = do ->
       mergeDefaults propTypes, type.optionTypes
     return propTypes
 
-  type.defineValues
+  type.defineValues ->
 
-    _tap: ->
-      options = parseOptions TapResponder, @props
-      return TapResponder options
+    _tap: @_createTapResponder()
 
   type.defineListeners do ->
 
@@ -65,6 +63,10 @@ Button = do ->
       return
 
   type.defineMethods
+
+    _createTapResponder: ->
+      options = parseOptions TapResponder, @props
+      return TapResponder options
 
     __renderIcon: ->
       {icon, iconStyle} = @props
@@ -94,17 +96,13 @@ Button.Type = do ->
       maxTapCount: Number
       preventDistance: Number
 
-  type.defineValues
+  type.defineValues (options) ->
 
-    _icon: (options) ->
-      return options.icon
+    _icon: options.icon
 
-    _text: (options) ->
-      return options.text
+    _text: options.text
 
-    _tap: (options) ->
-      tapOptions = parseOptions TapResponder, options
-      return TapResponder tapOptions
+    _tap: @_createTapResponder options
 
   type.defineStyles
 
@@ -113,6 +111,10 @@ Button.Type = do ->
     text: null
 
   type.defineMethods
+
+    _createTapResponder: (options) ->
+      options = parseOptions TapResponder, options
+      return TapResponder options
 
     __renderIcon: ->
       if @_icon
